@@ -300,3 +300,10 @@ export function getAllTemplates() {
     description: SHADER_TEMPLATES[key].description
   }));
 }
+
+// Default export for compatibility
+export default {
+  getTemplate,
+  getAllTemplates,
+  templates: SHADER_TEMPLATES
+};
