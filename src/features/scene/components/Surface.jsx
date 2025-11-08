@@ -163,8 +163,8 @@ const DynamicMaterial = React.forwardRef(({
   }
 
   // Registry-based materials (shader materials)
-  if (materialConfig && materialConfig.component) {
-    const props = { ...baseProps, time };
+  if (materialConfig && materialConfig.render) {
+    const props = { ref, ...baseProps, time };
 
     // Add audio data if material is audio-reactive
     if (materialConfig.audioReactive && audioData) {
@@ -175,14 +175,8 @@ const DynamicMaterial = React.forwardRef(({
       props.audioFrequency = audioData.frequency;
     }
 
-    // Use the elementName from registry (e.g., 'plasmaShaderMaterial')
-    const elementName = materialConfig.elementName;
-    if (!elementName) {
-      console.error(`Material ${materialConfig.id} missing elementName in registry`);
-      return <meshBasicMaterial {...baseProps} color="#ff0000" />;
-    }
-
-    return React.createElement(elementName, { ref, ...props });
+    // Use the render function from registry
+    return materialConfig.render(props);
   }
 
   // Fallback: white material

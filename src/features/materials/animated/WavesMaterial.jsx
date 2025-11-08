@@ -58,7 +58,7 @@ MaterialRegistry.register({
   name: 'Waves',
   category: 'animated',
   component: WavesShaderMaterial,
-  elementName: 'wavesShaderMaterial',
+  render: (props) => <wavesShaderMaterial {...props} />,
   props: {
     time: { type: 'float', default: 0 }
   },

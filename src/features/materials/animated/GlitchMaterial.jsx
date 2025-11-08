@@ -79,7 +79,7 @@ MaterialRegistry.register({
   name: 'Glitch',
   category: 'animated',
   component: GlitchShaderMaterial,
-  elementName: 'glitchShaderMaterial',
+  render: (props) => <glitchShaderMaterial {...props} />,
   props: {
     time: { type: 'float', default: 0 }
   },

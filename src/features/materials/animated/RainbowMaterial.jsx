@@ -59,7 +59,7 @@ MaterialRegistry.register({
   name: 'Rainbow',
   category: 'animated',
   component: RainbowShaderMaterial,
-  elementName: 'rainbowShaderMaterial',
+  render: (props) => <rainbowShaderMaterial {...props} />,
   props: {
     time: { type: 'float', default: 0 }
   },

@@ -49,7 +49,7 @@ MaterialRegistry.register({
   name: 'Animated Gradient',
   category: 'animated',
   component: AnimatedGradientShaderMaterial,
-  elementName: 'animatedGradientShaderMaterial',
+  render: (props) => <animatedGradientShaderMaterial {...props} />,
   props: {
     time: { type: 'float', default: 0 }
   },

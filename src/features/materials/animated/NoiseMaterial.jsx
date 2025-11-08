@@ -87,7 +87,7 @@ MaterialRegistry.register({
   name: 'Noise',
   category: 'animated',
   component: NoiseShaderMaterial,
-  elementName: 'noiseShaderMaterial',
+  render: (props) => <noiseShaderMaterial {...props} />,
   props: {
     time: { type: 'float', default: 0 }
   },

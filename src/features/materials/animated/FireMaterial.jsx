@@ -94,7 +94,7 @@ MaterialRegistry.register({
   name: 'Fire',
   category: 'animated',
   component: FireShaderMaterial,
-  elementName: 'fireShaderMaterial',
+  render: (props) => <fireShaderMaterial {...props} />,
   props: {
     time: { type: 'float', default: 0 }
   },
