@@ -1,6 +1,7 @@
 import React from 'react';
 import { Scene } from '../features/scene';
 import { SurfacePanel, StatusBar, Notification } from '../features/ui';
+import { SidebarToggle } from '../features/ui/components/SidebarToggle';
 import { CalibrationMode } from '../features/calibration';
 import { useApp } from '../shared/context/AppContext';
 import { useSurfaces } from '../features/surface-manager';
@@ -13,14 +14,15 @@ import './EditView.css';
  * Full editor interface with controls, preview, and calibration
  */
 export function EditView() {
-  const { toggleMode, toggleFullscreen } = useApp();
+  const { toggleMode, toggleFullscreen, toggleSidebar } = useApp();
   const { addSurface } = useSurfaces();
 
   // Set up keyboard shortcuts
   useKeyboard({
     [KEYBOARD_SHORTCUTS.TOGGLE_MODE]: toggleMode,
     [KEYBOARD_SHORTCUTS.TOGGLE_FULLSCREEN]: toggleFullscreen,
-    [KEYBOARD_SHORTCUTS.ADD_SURFACE]: addSurface
+    [KEYBOARD_SHORTCUTS.ADD_SURFACE]: addSurface,
+    [KEYBOARD_SHORTCUTS.TOGGLE_SIDEBAR]: toggleSidebar
   });
 
   return (
@@ -32,6 +34,7 @@ export function EditView() {
 
       {/* UI Overlays */}
       <SurfacePanel />
+      <SidebarToggle />
       <StatusBar />
       <CalibrationMode />
       <Notification />

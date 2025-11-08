@@ -71,7 +71,8 @@ export const KEYBOARD_SHORTCUTS = {
   TOGGLE_MODE: ' ',
   TOGGLE_FULLSCREEN: 'f',
   ADD_SURFACE: 'a',
-  DELETE_SURFACE: 'Delete'
+  DELETE_SURFACE: 'Delete',
+  TOGGLE_SIDEBAR: 's'
 };
 
 export const STORAGE_KEYS = {
