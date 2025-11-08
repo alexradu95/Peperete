@@ -92,6 +92,12 @@ export function Surface({ surface }) {
   // Get material configuration from registry
   const materialConfig = MaterialRegistry.get(surface.contentType);
 
+  // Debug: Log if material not found
+  if (!materialConfig && surface.contentType) {
+    console.warn(`Material "${surface.contentType}" not found. Available materials:`,
+      MaterialRegistry.getAll().map(m => m.id));
+  }
+
   return (
     <mesh
       ref={meshRef}
