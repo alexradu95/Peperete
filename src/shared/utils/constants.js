@@ -20,6 +20,7 @@ export const CONTENT_TYPES = {
   KALEIDOSCOPE: 'kaleidoscope',
   GLITCH: 'glitch',
   SPIRAL: 'spiral',
+  CUSTOM_SHADER: 'custom-shader',
   WHITE: 'white',
   RED: 'red',
   GREEN: 'green',

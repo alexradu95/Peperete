@@ -223,3 +223,21 @@
 .surface-count {
   text-align: center;
 }
+
+/* Shader Editor Button */
+.btn-shader-editor {
+  width: 100%;
+  padding: 10px;
+  background: #7c3aed;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.btn-shader-editor:hover {
+  background: #6d28d9;
+}

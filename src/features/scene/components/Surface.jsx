@@ -15,6 +15,7 @@ import RainbowShaderMaterial from '../materials/RainbowMaterial';
 import KaleidoscopeShaderMaterial from '../materials/KaleidoscopeMaterial';
 import GlitchShaderMaterial from '../materials/GlitchMaterial';
 import SpiralShaderMaterial from '../materials/SpiralMaterial';
+import { CustomShaderMaterial } from '../materials/CustomShaderMaterial';
 
 /**
  * Surface Component
@@ -146,6 +147,15 @@ export function Surface({ surface }) {
           props: baseProps
         };
 
+      case CONTENT_TYPES.CUSTOM_SHADER:
+        return {
+          type: 'customShader',
+          props: {
+            ...baseProps,
+            shaderData: surface.contentData?.shaderData
+          }
+        };
+
       case CONTENT_TYPES.IMAGE:
         return {
           type: 'image',
@@ -213,6 +223,16 @@ export function Surface({ surface }) {
       )}
       {materialProps.type === 'spiral' && (
         <spiralShaderMaterial ref={materialRef} {...materialProps.props} />
+      )}
+      {materialProps.type === 'customShader' && materialProps.props.shaderData && (
+        <CustomShaderMaterial
+          vertexShader={materialProps.props.shaderData.vertexShader}
+          fragmentShader={materialProps.props.shaderData.fragmentShader}
+          uniforms={materialProps.props.shaderData.uniforms || {}}
+          side={materialProps.props.side}
+          depthTest={materialProps.props.depthTest}
+          depthWrite={materialProps.props.depthWrite}
+        />
       )}
       {materialProps.type === 'meshBasicMaterial' && (
         <meshBasicMaterial {...materialProps.props} />
