@@ -7,6 +7,14 @@ import { CONTENT_TYPES, GEOMETRY_SUBDIVISIONS, GEOMETRY_TYPES } from '../../../s
 import { GeometryGenerator } from '../utils/GeometryGenerator';
 import AnimatedGradientShaderMaterial from '../materials/AnimatedGradientMaterial';
 import RotatingColorsShaderMaterial from '../materials/RotatingColorsMaterial';
+import PlasmaShaderMaterial from '../materials/PlasmaMaterial';
+import WavesShaderMaterial from '../materials/WavesMaterial';
+import NoiseShaderMaterial from '../materials/NoiseMaterial';
+import FireShaderMaterial from '../materials/FireMaterial';
+import RainbowShaderMaterial from '../materials/RainbowMaterial';
+import KaleidoscopeShaderMaterial from '../materials/KaleidoscopeMaterial';
+import GlitchShaderMaterial from '../materials/GlitchMaterial';
+import SpiralShaderMaterial from '../materials/SpiralMaterial';
 
 /**
  * Surface Component
@@ -90,6 +98,54 @@ export function Surface({ surface }) {
           props: baseProps
         };
 
+      case CONTENT_TYPES.PLASMA:
+        return {
+          type: 'plasma',
+          props: baseProps
+        };
+
+      case CONTENT_TYPES.WAVES:
+        return {
+          type: 'waves',
+          props: baseProps
+        };
+
+      case CONTENT_TYPES.NOISE:
+        return {
+          type: 'noise',
+          props: baseProps
+        };
+
+      case CONTENT_TYPES.FIRE:
+        return {
+          type: 'fire',
+          props: baseProps
+        };
+
+      case CONTENT_TYPES.RAINBOW:
+        return {
+          type: 'rainbow',
+          props: baseProps
+        };
+
+      case CONTENT_TYPES.KALEIDOSCOPE:
+        return {
+          type: 'kaleidoscope',
+          props: baseProps
+        };
+
+      case CONTENT_TYPES.GLITCH:
+        return {
+          type: 'glitch',
+          props: baseProps
+        };
+
+      case CONTENT_TYPES.SPIRAL:
+        return {
+          type: 'spiral',
+          props: baseProps
+        };
+
       case CONTENT_TYPES.IMAGE:
         return {
           type: 'image',
@@ -133,6 +189,30 @@ export function Surface({ surface }) {
       )}
       {materialProps.type === 'rotatingColors' && (
         <rotatingColorsShaderMaterial ref={materialRef} {...materialProps.props} />
+      )}
+      {materialProps.type === 'plasma' && (
+        <plasmaShaderMaterial ref={materialRef} {...materialProps.props} />
+      )}
+      {materialProps.type === 'waves' && (
+        <wavesShaderMaterial ref={materialRef} {...materialProps.props} />
+      )}
+      {materialProps.type === 'noise' && (
+        <noiseShaderMaterial ref={materialRef} {...materialProps.props} />
+      )}
+      {materialProps.type === 'fire' && (
+        <fireShaderMaterial ref={materialRef} {...materialProps.props} />
+      )}
+      {materialProps.type === 'rainbow' && (
+        <rainbowShaderMaterial ref={materialRef} {...materialProps.props} />
+      )}
+      {materialProps.type === 'kaleidoscope' && (
+        <kaleidoscopeShaderMaterial ref={materialRef} {...materialProps.props} />
+      )}
+      {materialProps.type === 'glitch' && (
+        <glitchShaderMaterial ref={materialRef} {...materialProps.props} />
+      )}
+      {materialProps.type === 'spiral' && (
+        <spiralShaderMaterial ref={materialRef} {...materialProps.props} />
       )}
       {materialProps.type === 'meshBasicMaterial' && (
         <meshBasicMaterial {...materialProps.props} />

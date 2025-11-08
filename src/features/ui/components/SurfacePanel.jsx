@@ -152,15 +152,31 @@ export function SurfacePanel() {
                       value={surface.contentType}
                       onChange={(e) => handleContentTypeChange(surface.id, e.target.value)}
                     >
-                      <option value={CONTENT_TYPES.CHECKERBOARD}>Checkerboard</option>
-                      <option value={CONTENT_TYPES.GRID}>Grid with Numbers</option>
-                      <option value={CONTENT_TYPES.ANIMATED_GRADIENT}>Animated Gradient</option>
-                      <option value={CONTENT_TYPES.ROTATING_COLORS}>Rotating Colors</option>
-                      <option value={CONTENT_TYPES.WHITE}>White</option>
-                      <option value={CONTENT_TYPES.RED}>Red</option>
-                      <option value={CONTENT_TYPES.GREEN}>Green</option>
-                      <option value={CONTENT_TYPES.BLUE}>Blue</option>
-                      <option value={CONTENT_TYPES.IMAGE}>Image</option>
+                      <optgroup label="Calibration Patterns">
+                        <option value={CONTENT_TYPES.CHECKERBOARD}>Checkerboard</option>
+                        <option value={CONTENT_TYPES.GRID}>Grid with Numbers</option>
+                      </optgroup>
+                      <optgroup label="Shader Effects">
+                        <option value={CONTENT_TYPES.ANIMATED_GRADIENT}>Animated Gradient</option>
+                        <option value={CONTENT_TYPES.ROTATING_COLORS}>Rotating Colors</option>
+                        <option value={CONTENT_TYPES.PLASMA}>Plasma</option>
+                        <option value={CONTENT_TYPES.WAVES}>Waves</option>
+                        <option value={CONTENT_TYPES.NOISE}>Noise Pattern</option>
+                        <option value={CONTENT_TYPES.FIRE}>Fire</option>
+                        <option value={CONTENT_TYPES.RAINBOW}>Rainbow Spectrum</option>
+                        <option value={CONTENT_TYPES.KALEIDOSCOPE}>Kaleidoscope</option>
+                        <option value={CONTENT_TYPES.GLITCH}>Glitch</option>
+                        <option value={CONTENT_TYPES.SPIRAL}>Spiral</option>
+                      </optgroup>
+                      <optgroup label="Solid Colors">
+                        <option value={CONTENT_TYPES.WHITE}>White</option>
+                        <option value={CONTENT_TYPES.RED}>Red</option>
+                        <option value={CONTENT_TYPES.GREEN}>Green</option>
+                        <option value={CONTENT_TYPES.BLUE}>Blue</option>
+                      </optgroup>
+                      <optgroup label="Custom">
+                        <option value={CONTENT_TYPES.IMAGE}>Image</option>
+                      </optgroup>
                     </select>
                   </div>
 
