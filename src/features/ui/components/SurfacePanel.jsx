@@ -3,6 +3,8 @@ import { useSurfaces } from '../../surface-manager/context/SurfaceContext';
 import { useApp } from '../../../shared/context/AppContext';
 import { CONTENT_TYPES, APP_MODES } from '../../../shared/utils/constants';
 import { GeometryTypeModal } from './GeometryTypeModal';
+import { ShaderEditorPanel } from './ShaderEditorPanel';
+import { getTemplate } from '../../scene/materials/shaderTemplates';
 import './SurfacePanel.css';
 
 /**
@@ -24,6 +26,8 @@ export function SurfacePanel() {
   const { mode, showNotification } = useApp();
   const surfaces = getAllSurfaces();
   const [showGeometryModal, setShowGeometryModal] = useState(false);
+  const [showShaderEditor, setShowShaderEditor] = useState(false);
+  const [editingShaderSurfaceId, setEditingShaderSurfaceId] = useState(null);
 
   const handleAddSurface = () => {
     setShowGeometryModal(true);
@@ -55,7 +59,36 @@ export function SurfacePanel() {
   };
 
   const handleContentTypeChange = (id, contentType) => {
-    updateSurfaceContent(id, contentType);
+    // If switching to custom shader, initialize with blank template
+    if (contentType === CONTENT_TYPES.CUSTOM_SHADER) {
+      const blankTemplate = getTemplate('BLANK');
+      const shaderData = {
+        vertexShader: blankTemplate.vertexShader,
+        fragmentShader: blankTemplate.fragmentShader,
+        uniforms: blankTemplate.uniforms
+      };
+      updateSurfaceContent(id, contentType, { shaderData });
+      showNotification('Custom shader initialized - click "Edit Shader" to customize');
+    } else {
+      updateSurfaceContent(id, contentType);
+    }
+  };
+
+  const handleOpenShaderEditor = (id) => {
+    setEditingShaderSurfaceId(id);
+    setShowShaderEditor(true);
+  };
+
+  const handleShaderApply = (shaderData) => {
+    if (editingShaderSurfaceId) {
+      updateSurfaceContent(editingShaderSurfaceId, CONTENT_TYPES.CUSTOM_SHADER, { shaderData });
+      showNotification('Shader applied');
+    }
+  };
+
+  const handleShaderEditorClose = () => {
+    setShowShaderEditor(false);
+    setEditingShaderSurfaceId(null);
   };
 
   const handleRenderOrderChange = (id, renderOrder) => {
@@ -81,6 +114,8 @@ export function SurfacePanel() {
     showNotification('Live view launched');
   };
 
+  const currentSurface = surfaces.find(s => s.id === editingShaderSurfaceId);
+
   return (
     <>
       <GeometryTypeModal
@@ -88,6 +123,15 @@ export function SurfacePanel() {
         onClose={() => setShowGeometryModal(false)}
         onSelect={handleGeometrySelect}
       />
+
+      {showShaderEditor && (
+        <ShaderEditorPanel
+          surfaceId={editingShaderSurfaceId}
+          initialShaderData={currentSurface?.contentData?.shaderData}
+          onApply={handleShaderApply}
+          onClose={handleShaderEditorClose}
+        />
+      )}
 
       <div className="surface-panel">
         <div className="surface-panel-header">
@@ -167,6 +211,7 @@ export function SurfacePanel() {
                         <option value={CONTENT_TYPES.KALEIDOSCOPE}>Kaleidoscope</option>
                         <option value={CONTENT_TYPES.GLITCH}>Glitch</option>
                         <option value={CONTENT_TYPES.SPIRAL}>Spiral</option>
+                        <option value={CONTENT_TYPES.CUSTOM_SHADER}>🎨 Custom Shader (Edit in Real-time)</option>
                       </optgroup>
                       <optgroup label="Solid Colors">
                         <option value={CONTENT_TYPES.WHITE}>White</option>
@@ -179,6 +224,17 @@ export function SurfacePanel() {
                       </optgroup>
                     </select>
                   </div>
+
+                  {surface.contentType === CONTENT_TYPES.CUSTOM_SHADER && (
+                    <div className="form-group">
+                      <button
+                        className="btn-shader-editor"
+                        onClick={() => handleOpenShaderEditor(surface.id)}
+                      >
+                        ✏️ Edit Shader
+                      </button>
+                    </div>
+                  )}
 
                   {surface.contentType === CONTENT_TYPES.IMAGE && (
                     <div className="form-group">
