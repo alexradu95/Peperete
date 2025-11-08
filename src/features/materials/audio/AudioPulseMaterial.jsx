@@ -85,6 +85,7 @@ MaterialRegistry.register({
   name: 'Audio Pulse',
   category: 'audio',
   component: AudioPulseShaderMaterial,
+  elementName: 'audioPulseShaderMaterial',
   props: {
     time: { type: 'float', default: 0 },
     audioAmplitude: { type: 'float', default: 0 },

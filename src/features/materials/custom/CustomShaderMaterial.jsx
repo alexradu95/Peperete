@@ -95,6 +95,7 @@ MaterialRegistry.register({
   name: 'Custom Shader',
   category: 'custom',
   component: CustomShaderMaterial,
+  elementName: 'customShaderMaterial',
   props: {
     time: { type: 'float', default: 0 },
     vertexShader: { type: 'string', default: '' },

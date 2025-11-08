@@ -75,6 +75,7 @@ MaterialRegistry.register({
   name: 'Kaleidoscope',
   category: 'animated',
   component: KaleidoscopeShaderMaterial,
+  elementName: 'kaleidoscopeShaderMaterial',
   props: {
     time: { type: 'float', default: 0 }
   },

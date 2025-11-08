@@ -74,6 +74,7 @@ MaterialRegistry.register({
   name: 'Spiral',
   category: 'animated',
   component: SpiralShaderMaterial,
+  elementName: 'spiralShaderMaterial',
   props: {
     time: { type: 'float', default: 0 }
   },

@@ -64,6 +64,7 @@ MaterialRegistry.register({
   name: 'Rotating Colors',
   category: 'animated',
   component: RotatingColorsShaderMaterial,
+  elementName: 'rotatingColorsShaderMaterial',
   props: {
     time: { type: 'float', default: 0 }
   },

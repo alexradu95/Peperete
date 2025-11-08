@@ -111,6 +111,7 @@ MaterialRegistry.register({
   name: 'Audio Spectrum',
   category: 'audio',
   component: AudioSpectrumShaderMaterial,
+  elementName: 'audioSpectrumShaderMaterial',
   props: {
     time: { type: 'float', default: 0 },
     audioAmplitude: { type: 'float', default: 0 },

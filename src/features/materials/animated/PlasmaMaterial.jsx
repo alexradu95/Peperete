@@ -58,6 +58,7 @@ MaterialRegistry.register({
   name: 'Plasma',
   category: 'animated',
   component: PlasmaShaderMaterial,
+  elementName: 'plasmaShaderMaterial', // R3F element name after extend()
   props: {
     time: { type: 'float', default: 0, description: 'Animation time' }
   },

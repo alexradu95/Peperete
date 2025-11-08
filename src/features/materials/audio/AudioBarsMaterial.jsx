@@ -131,6 +131,7 @@ MaterialRegistry.register({
   name: 'Audio Bars',
   category: 'audio',
   component: AudioBarsShaderMaterial,
+  elementName: 'audioBarsShaderMaterial',
   props: {
     time: { type: 'float', default: 0 },
     audioAmplitude: { type: 'float', default: 0 },

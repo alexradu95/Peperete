@@ -82,6 +82,7 @@ MaterialRegistry.register({
   name: 'Audio Waves',
   category: 'audio',
   component: AudioWavesShaderMaterial,
+  elementName: 'audioWavesShaderMaterial',
   props: {
     time: { type: 'float', default: 0 },
     audioAmplitude: { type: 'float', default: 0 },

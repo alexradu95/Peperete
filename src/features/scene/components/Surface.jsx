@@ -175,12 +175,14 @@ const DynamicMaterial = React.forwardRef(({
       props.audioFrequency = audioData.frequency;
     }
 
-    // Use the lowercase camelCase name that R3F expects after extend()
-    // Convert PlasmaMaterial -> plasmaShaderMaterial
-    const materialName = materialConfig.component.name.charAt(0).toLowerCase() +
-                         materialConfig.component.name.slice(1);
+    // Use the elementName from registry (e.g., 'plasmaShaderMaterial')
+    const elementName = materialConfig.elementName;
+    if (!elementName) {
+      console.error(`Material ${materialConfig.id} missing elementName in registry`);
+      return <meshBasicMaterial {...baseProps} color="#ff0000" />;
+    }
 
-    return React.createElement(materialName, { ref, ...props });
+    return React.createElement(elementName, { ref, ...props });
   }
 
   // Fallback: white material
