@@ -1,3 +1,4 @@
+import React from 'react';
 import { TRANSFORM_MODES } from '../utils/SurfaceTransformations';
 import styles from './TransformModeSelector.module.css';
 
