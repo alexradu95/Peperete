@@ -1,10 +1,12 @@
 import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
 import { DEFAULT_SURFACE_CONFIG, STORAGE_KEYS, getDefaultCorners, GEOMETRY_TYPES } from '../../../shared/utils/constants';
 import { useStorage } from '../../../shared/hooks/useStorage';
+import { broadcastManager, MessageTypes } from '../../../shared/utils/broadcastChannel';
 
 /**
  * Surface Manager Context
  * Manages all surfaces, their state, and operations
+ * Syncs across tabs via BroadcastChannel
  */
 
 const SurfaceContext = createContext(null);
@@ -32,7 +34,13 @@ export function SurfaceProvider({ children }) {
     return map;
   });
 
-  const [selectedSurfaceId, setSelectedSurfaceId] = useState(null);
+  const [selectedSurfaceId, setSelectedSurfaceIdInternal] = useState(null);
+
+  // Wrapper to broadcast selection changes
+  const setSelectedSurfaceId = useCallback((id) => {
+    setSelectedSurfaceIdInternal(id);
+    broadcastManager.broadcast(MessageTypes.SURFACE_SELECTED, { id });
+  }, []);
   const nextIdRef = useRef(storedSurfaces.length + 1);
   const previousSizeRef = useRef({ width: window.innerWidth, height: window.innerHeight });
 
@@ -66,6 +74,10 @@ export function SurfaceProvider({ children }) {
     });
 
     setSelectedSurfaceId(id);
+
+    // Broadcast to other tabs
+    broadcastManager.broadcast(MessageTypes.SURFACE_ADDED, newSurface);
+
     return id;
   }, [syncToStorage]);
 
@@ -81,6 +93,9 @@ export function SurfaceProvider({ children }) {
     if (selectedSurfaceId === id) {
       setSelectedSurfaceId(null);
     }
+
+    // Broadcast to other tabs
+    broadcastManager.broadcast(MessageTypes.SURFACE_DELETED, { id });
   }, [selectedSurfaceId, syncToStorage]);
 
   // Update surface
@@ -89,8 +104,12 @@ export function SurfaceProvider({ children }) {
       const next = new Map(prev);
       const surface = next.get(id);
       if (surface) {
-        next.set(id, { ...surface, ...updates });
+        const updatedSurface = { ...surface, ...updates };
+        next.set(id, updatedSurface);
         syncToStorage(next);
+
+        // Broadcast to other tabs
+        broadcastManager.broadcast(MessageTypes.SURFACE_UPDATED, updatedSurface);
       }
       return next;
     });
@@ -141,6 +160,58 @@ export function SurfaceProvider({ children }) {
     setSelectedSurfaceId(null);
     nextIdRef.current = 1;
   }, [setStoredSurfaces]);
+
+  // Listen for broadcasts from other tabs
+  useEffect(() => {
+    const unsubscribeUpdated = broadcastManager.subscribe(
+      MessageTypes.SURFACE_UPDATED,
+      (surface) => {
+        setSurfaces(prev => {
+          const next = new Map(prev);
+          next.set(surface.id, surface);
+          return next;
+        });
+      }
+    );
+
+    const unsubscribeAdded = broadcastManager.subscribe(
+      MessageTypes.SURFACE_ADDED,
+      (surface) => {
+        setSurfaces(prev => {
+          const next = new Map(prev);
+          if (!next.has(surface.id)) {
+            next.set(surface.id, surface);
+          }
+          return next;
+        });
+      }
+    );
+
+    const unsubscribeDeleted = broadcastManager.subscribe(
+      MessageTypes.SURFACE_DELETED,
+      ({ id }) => {
+        setSurfaces(prev => {
+          const next = new Map(prev);
+          next.delete(id);
+          return next;
+        });
+      }
+    );
+
+    const unsubscribeSelected = broadcastManager.subscribe(
+      MessageTypes.SURFACE_SELECTED,
+      ({ id }) => {
+        setSelectedSurfaceIdInternal(id);
+      }
+    );
+
+    return () => {
+      unsubscribeUpdated();
+      unsubscribeAdded();
+      unsubscribeDeleted();
+      unsubscribeSelected();
+    };
+  }, []);
 
   // Handle window resize - scale all corner positions proportionally
   useEffect(() => {

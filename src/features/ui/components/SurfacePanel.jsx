@@ -74,6 +74,13 @@ export function SurfacePanel() {
     }
   };
 
+  const handleLaunchLiveView = () => {
+    // Open live view in a new window/tab
+    const liveViewUrl = `${window.location.origin}/live`;
+    window.open(liveViewUrl, '_blank', 'width=1920,height=1080');
+    showNotification('Live view launched');
+  };
+
   return (
     <>
       <GeometryTypeModal
@@ -85,9 +92,14 @@ export function SurfacePanel() {
       <div className="surface-panel">
         <div className="surface-panel-header">
           <h2>Surfaces</h2>
-          <button className="btn-add" onClick={handleAddSurface}>
-            + Add Surface
-          </button>
+          <div className="header-buttons">
+            <button className="btn-launch-live" onClick={handleLaunchLiveView} title="Open live view in new window">
+              Launch Live View
+            </button>
+            <button className="btn-add" onClick={handleAddSurface}>
+              + Add Surface
+            </button>
+          </div>
         </div>
 
       <div className="surface-list">

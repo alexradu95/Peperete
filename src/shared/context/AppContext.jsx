@@ -1,23 +1,32 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { APP_MODES } from '../utils/constants';
+import { broadcastManager, MessageTypes } from '../utils/broadcastChannel';
 
 /**
  * Global application state context
  * Manages app mode (calibration/playback) and fullscreen state
+ * Syncs across tabs via BroadcastChannel
  */
 
 const AppContext = createContext(null);
 
 export function AppProvider({ children }) {
-  const [mode, setMode] = useState(APP_MODES.CALIBRATION);
+  const [mode, setModeInternal] = useState(APP_MODES.CALIBRATION);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [notification, setNotification] = useState(null);
+
+  // Wrapper to broadcast mode changes
+  const setMode = useCallback((newMode) => {
+    const resolvedMode = typeof newMode === 'function' ? newMode(mode) : newMode;
+    setModeInternal(resolvedMode);
+    broadcastManager.broadcast(MessageTypes.MODE_CHANGED, { mode: resolvedMode });
+  }, [mode]);
 
   const toggleMode = useCallback(() => {
     setMode(prev =>
       prev === APP_MODES.CALIBRATION ? APP_MODES.PLAYBACK : APP_MODES.CALIBRATION
     );
-  }, []);
+  }, [setMode]);
 
   const toggleFullscreen = useCallback(() => {
     if (!document.fullscreenElement) {
@@ -32,6 +41,20 @@ export function AppProvider({ children }) {
   const showNotification = useCallback((message, duration = 3000) => {
     setNotification(message);
     setTimeout(() => setNotification(null), duration);
+  }, []);
+
+  // Listen for broadcasts from other tabs
+  useEffect(() => {
+    const unsubscribeMode = broadcastManager.subscribe(
+      MessageTypes.MODE_CHANGED,
+      ({ mode: newMode }) => {
+        setModeInternal(newMode);
+      }
+    );
+
+    return () => {
+      unsubscribeMode();
+    };
   }, []);
 
   const value = {
