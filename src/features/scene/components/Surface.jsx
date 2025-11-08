@@ -164,7 +164,6 @@ const DynamicMaterial = React.forwardRef(({
 
   // Registry-based materials (shader materials)
   if (materialConfig && materialConfig.component) {
-    const MaterialComponent = materialConfig.component;
     const props = { ...baseProps, time };
 
     // Add audio data if material is audio-reactive
@@ -176,7 +175,12 @@ const DynamicMaterial = React.forwardRef(({
       props.audioFrequency = audioData.frequency;
     }
 
-    return <MaterialComponent ref={ref} {...props} />;
+    // Use the lowercase camelCase name that R3F expects after extend()
+    // Convert PlasmaMaterial -> plasmaShaderMaterial
+    const materialName = materialConfig.component.name.charAt(0).toLowerCase() +
+                         materialConfig.component.name.slice(1);
+
+    return React.createElement(materialName, { ref, ...props });
   }
 
   // Fallback: white material

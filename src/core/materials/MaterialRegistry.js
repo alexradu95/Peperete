@@ -58,8 +58,14 @@ class MaterialRegistryClass {
       description = ''
     } = config;
 
-    if (!id || !name || !category || !component) {
+    if (!id || !name || !category) {
       console.error('Material registration failed: missing required fields', config);
+      return;
+    }
+
+    // Component can be null for basic materials that use textures
+    if (component === undefined) {
+      console.error('Material registration failed: component is undefined', config);
       return;
     }
 
