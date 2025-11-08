@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { APP_MODES } from '../utils/constants';
+import { APP_MODES } from '../constants';
 import { broadcastManager, MessageTypes } from '../utils/broadcastChannel';
 
 /**

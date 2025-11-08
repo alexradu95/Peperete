@@ -1,6 +1,7 @@
 import { shaderMaterial } from '@react-three/drei';
 import { extend } from '@react-three/fiber';
 import * as THREE from 'three';
+import { MaterialRegistry } from '../../../core/materials/MaterialRegistry';
 
 /**
  * Plasma Shader Material
@@ -50,5 +51,18 @@ PlasmaShaderMaterial.side = THREE.DoubleSide;
 
 // Extend R3F with custom material
 extend({ PlasmaShaderMaterial });
+
+// Register material with MaterialRegistry
+MaterialRegistry.register({
+  id: 'plasma',
+  name: 'Plasma',
+  category: 'animated',
+  component: PlasmaShaderMaterial,
+  props: {
+    time: { type: 'float', default: 0, description: 'Animation time' }
+  },
+  audioReactive: false,
+  description: 'Classic plasma effect with flowing colors'
+});
 
 export default PlasmaShaderMaterial;

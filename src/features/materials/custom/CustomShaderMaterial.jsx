@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useMemo } from 'react';
 import { ShaderMaterial } from 'three';
 import { useFrame } from '@react-three/fiber';
+import { MaterialRegistry } from '../../../core/materials/MaterialRegistry';
 
 /**
  * CustomShaderMaterial - Dynamic shader material for user-editable shaders
@@ -87,3 +88,21 @@ export function CustomShaderMaterial({
 
   return <primitive object={material} ref={materialRef} attach="material" />;
 }
+
+// Register material with MaterialRegistry
+MaterialRegistry.register({
+  id: 'custom-shader',
+  name: 'Custom Shader',
+  category: 'custom',
+  component: CustomShaderMaterial,
+  props: {
+    time: { type: 'float', default: 0 },
+    vertexShader: { type: 'string', default: '' },
+    fragmentShader: { type: 'string', default: '' },
+    uniforms: { type: 'object', default: {} }
+  },
+  audioReactive: false,
+  description: 'User-defined custom shader'
+});
+
+export default CustomShaderMaterial;

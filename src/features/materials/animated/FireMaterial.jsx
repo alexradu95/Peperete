@@ -1,6 +1,7 @@
 import { shaderMaterial } from '@react-three/drei';
 import { extend } from '@react-three/fiber';
 import * as THREE from 'three';
+import { MaterialRegistry } from '../../../core/materials/MaterialRegistry';
 
 /**
  * Fire Shader Material
@@ -86,5 +87,18 @@ FireShaderMaterial.side = THREE.DoubleSide;
 
 // Extend R3F with custom material
 extend({ FireShaderMaterial });
+
+// Register material with MaterialRegistry
+MaterialRegistry.register({
+  id: 'fire',
+  name: 'Fire',
+  category: 'animated',
+  component: FireShaderMaterial,
+  props: {
+    time: { type: 'float', default: 0 }
+  },
+  audioReactive: false,
+  description: 'Realistic fire and flame effect'
+});
 
 export default FireShaderMaterial;

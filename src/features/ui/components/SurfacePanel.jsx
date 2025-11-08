@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useSurfaces } from '../../surface-manager/context/SurfaceContext';
 import { useApp } from '../../../shared/context/AppContext';
 import { useAudio } from '../../../shared/context/AudioContext';
 import { CONTENT_TYPES, APP_MODES } from '../../../shared/constants';
+import { MaterialRegistry } from '../../../core/materials/MaterialRegistry';
 import { GeometryTypeModal } from './GeometryTypeModal';
 import { ShaderEditorPanel } from './ShaderEditorPanel';
-import { getTemplate } from '../../scene/materials/shaderTemplates';
+import { getTemplate } from '../../materials/custom/shaderTemplates';
 import './SurfacePanel.css';
 
 /**
@@ -233,31 +234,7 @@ export function SurfacePanel() {
                       value={surface.contentType}
                       onChange={(e) => handleContentTypeChange(surface.id, e.target.value)}
                     >
-                      <optgroup label="Calibration Patterns">
-                        <option value={CONTENT_TYPES.CHECKERBOARD}>Checkerboard</option>
-                        <option value={CONTENT_TYPES.GRID}>Grid with Numbers</option>
-                      </optgroup>
-                      <optgroup label="Shader Effects">
-                        <option value={CONTENT_TYPES.ANIMATED_GRADIENT}>Animated Gradient</option>
-                        <option value={CONTENT_TYPES.ROTATING_COLORS}>Rotating Colors</option>
-                        <option value={CONTENT_TYPES.PLASMA}>Plasma</option>
-                        <option value={CONTENT_TYPES.WAVES}>Waves</option>
-                        <option value={CONTENT_TYPES.NOISE}>Noise Pattern</option>
-                        <option value={CONTENT_TYPES.FIRE}>Fire</option>
-                        <option value={CONTENT_TYPES.RAINBOW}>Rainbow Spectrum</option>
-                        <option value={CONTENT_TYPES.KALEIDOSCOPE}>Kaleidoscope</option>
-                        <option value={CONTENT_TYPES.GLITCH}>Glitch</option>
-                        <option value={CONTENT_TYPES.SPIRAL}>Spiral</option>
-                      </optgroup>
-                      <optgroup label="Solid Colors">
-                        <option value={CONTENT_TYPES.WHITE}>White</option>
-                        <option value={CONTENT_TYPES.RED}>Red</option>
-                        <option value={CONTENT_TYPES.GREEN}>Green</option>
-                        <option value={CONTENT_TYPES.BLUE}>Blue</option>
-                      </optgroup>
-                      <optgroup label="Custom">
-                        <option value={CONTENT_TYPES.IMAGE}>Image</option>
-                      </optgroup>
+                      <MaterialOptionsDropdown />
                     </select>
                   </div>
 
@@ -307,6 +284,46 @@ export function SurfacePanel() {
           </div>
         </div>
       </div>
+    </>
+  );
+}
+
+/**
+ * MaterialOptionsDropdown Component
+ * Dynamically generates dropdown options from MaterialRegistry
+ */
+function MaterialOptionsDropdown() {
+  const materialsByCategory = useMemo(() => {
+    return MaterialRegistry.getAllByCategory();
+  }, []);
+
+  // Category display names mapping
+  const categoryLabels = {
+    basic: 'Basic Patterns',
+    animated: 'Animated Effects',
+    audio: 'Audio Reactive',
+    custom: 'Custom'
+  };
+
+  // Category order for display
+  const categoryOrder = ['basic', 'animated', 'audio', 'custom'];
+
+  return (
+    <>
+      {categoryOrder.map(category => {
+        const materials = materialsByCategory[category];
+        if (!materials || materials.length === 0) return null;
+
+        return (
+          <optgroup key={category} label={categoryLabels[category] || category}>
+            {materials.map(material => (
+              <option key={material.id} value={material.id}>
+                {material.name}
+              </option>
+            ))}
+          </optgroup>
+        );
+      })}
     </>
   );
 }

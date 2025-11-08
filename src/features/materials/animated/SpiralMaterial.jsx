@@ -1,6 +1,7 @@
 import { shaderMaterial } from '@react-three/drei';
 import { extend } from '@react-three/fiber';
 import * as THREE from 'three';
+import { MaterialRegistry } from '../../../core/materials/MaterialRegistry';
 
 /**
  * Spiral Shader Material
@@ -66,5 +67,18 @@ SpiralShaderMaterial.side = THREE.DoubleSide;
 
 // Extend R3F with custom material
 extend({ SpiralShaderMaterial });
+
+// Register material with MaterialRegistry
+MaterialRegistry.register({
+  id: 'spiral',
+  name: 'Spiral',
+  category: 'animated',
+  component: SpiralShaderMaterial,
+  props: {
+    time: { type: 'float', default: 0 }
+  },
+  audioReactive: false,
+  description: 'Hypnotic spiral pattern'
+});
 
 export default SpiralShaderMaterial;

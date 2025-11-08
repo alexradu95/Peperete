@@ -1,6 +1,7 @@
 import { shaderMaterial } from '@react-three/drei';
 import { extend } from '@react-three/fiber';
 import * as THREE from 'three';
+import { MaterialRegistry } from '../../../core/materials/MaterialRegistry';
 
 /**
  * Noise Shader Material
@@ -79,5 +80,18 @@ NoiseShaderMaterial.side = THREE.DoubleSide;
 
 // Extend R3F with custom material
 extend({ NoiseShaderMaterial });
+
+// Register material with MaterialRegistry
+MaterialRegistry.register({
+  id: 'noise',
+  name: 'Noise',
+  category: 'animated',
+  component: NoiseShaderMaterial,
+  props: {
+    time: { type: 'float', default: 0 }
+  },
+  audioReactive: false,
+  description: 'Animated noise patterns using fractal brownian motion'
+});
 
 export default NoiseShaderMaterial;

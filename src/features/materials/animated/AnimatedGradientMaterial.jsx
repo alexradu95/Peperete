@@ -1,6 +1,7 @@
 import { shaderMaterial } from '@react-three/drei';
 import { extend } from '@react-three/fiber';
 import * as THREE from 'three';
+import { MaterialRegistry } from '../../../core/materials/MaterialRegistry';
 
 /**
  * Animated Gradient Shader Material
@@ -41,5 +42,18 @@ AnimatedGradientShaderMaterial.side = THREE.DoubleSide;
 
 // Extend R3F with custom material
 extend({ AnimatedGradientShaderMaterial });
+
+// Register material with MaterialRegistry
+MaterialRegistry.register({
+  id: 'animated-gradient',
+  name: 'Animated Gradient',
+  category: 'animated',
+  component: AnimatedGradientShaderMaterial,
+  props: {
+    time: { type: 'float', default: 0 }
+  },
+  audioReactive: false,
+  description: 'Flowing gradient animation using sine waves'
+});
 
 export default AnimatedGradientShaderMaterial;

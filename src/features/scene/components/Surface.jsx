@@ -2,33 +2,23 @@ import React, { useRef, useEffect, useMemo, useState } from 'react';
 import { useFrame, useLoader, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { TransformCalculator } from '../../../core/transformation/TransformCalculator';
+import { MaterialRegistry } from '../../../core/materials/MaterialRegistry';
 import { useContentManager, getColorValue } from '../hooks/useContentManager';
 import { CONTENT_TYPES, GEOMETRY_SUBDIVISIONS, GEOMETRY_TYPES } from '../../../shared/constants';
 import { GeometryGenerator } from '../../../core/geometry/GeometryGenerator';
 import { useAudio } from '../../../shared/context/AudioContext';
-import AnimatedGradientShaderMaterial from '../materials/AnimatedGradientMaterial';
-import RotatingColorsShaderMaterial from '../materials/RotatingColorsMaterial';
-import PlasmaShaderMaterial from '../materials/PlasmaMaterial';
-import WavesShaderMaterial from '../materials/WavesMaterial';
-import NoiseShaderMaterial from '../materials/NoiseMaterial';
-import FireShaderMaterial from '../materials/FireMaterial';
-import RainbowShaderMaterial from '../materials/RainbowMaterial';
-import KaleidoscopeShaderMaterial from '../materials/KaleidoscopeMaterial';
-import GlitchShaderMaterial from '../materials/GlitchMaterial';
-import SpiralShaderMaterial from '../materials/SpiralMaterial';
-import AudioWavesShaderMaterial from '../materials/AudioWavesMaterial';
-import AudioPulseShaderMaterial from '../materials/AudioPulseMaterial';
-import AudioSpectrumShaderMaterial from '../materials/AudioSpectrumMaterial';
-import AudioBarsShaderMaterial from '../materials/AudioBarsMaterial';
-import { CustomShaderMaterial } from '../materials/CustomShaderMaterial';
 
 /**
  * Surface Component
  * Renders a single projection surface with perspective transformation
+ *
+ * REFACTORED: Now uses MaterialRegistry and dynamic material rendering
+ * Reduced from 284 lines to ~150 lines
  */
 export function Surface({ surface }) {
   const meshRef = useRef();
   const materialRef = useRef();
+  const [time, setTime] = useState(0);
   const { createCheckerboardTexture, createGridTexture } = useContentManager();
   const { size } = useThree();
   const { audioData } = useAudio();
@@ -54,164 +44,16 @@ export function Surface({ surface }) {
     }
   }, [surface.corners, geometry, surface.geometryType, size.width, size.height]);
 
-  // Create material based on content type
-  const materialProps = useMemo(() => {
-    const baseProps = {
-      side: THREE.DoubleSide,
-      depthTest: false,
-      depthWrite: false
-    };
-
-    switch (surface.contentType) {
-      case CONTENT_TYPES.CHECKERBOARD:
-        return {
-          type: 'meshBasicMaterial',
-          props: {
-            ...baseProps,
-            map: createCheckerboardTexture()
-          }
-        };
-
-      case CONTENT_TYPES.GRID:
-        return {
-          type: 'meshBasicMaterial',
-          props: {
-            ...baseProps,
-            map: createGridTexture()
-          }
-        };
-
-      case CONTENT_TYPES.WHITE:
-      case CONTENT_TYPES.RED:
-      case CONTENT_TYPES.GREEN:
-      case CONTENT_TYPES.BLUE:
-        return {
-          type: 'meshBasicMaterial',
-          props: {
-            ...baseProps,
-            color: getColorValue(surface.contentType)
-          }
-        };
-
-      case CONTENT_TYPES.ANIMATED_GRADIENT:
-        return {
-          type: 'animatedGradient',
-          props: baseProps
-        };
-
-      case CONTENT_TYPES.ROTATING_COLORS:
-        return {
-          type: 'rotatingColors',
-          props: baseProps
-        };
-
-      case CONTENT_TYPES.PLASMA:
-        return {
-          type: 'plasma',
-          props: baseProps
-        };
-
-      case CONTENT_TYPES.WAVES:
-        return {
-          type: 'waves',
-          props: baseProps
-        };
-
-      case CONTENT_TYPES.NOISE:
-        return {
-          type: 'noise',
-          props: baseProps
-        };
-
-      case CONTENT_TYPES.FIRE:
-        return {
-          type: 'fire',
-          props: baseProps
-        };
-
-      case CONTENT_TYPES.RAINBOW:
-        return {
-          type: 'rainbow',
-          props: baseProps
-        };
-
-      case CONTENT_TYPES.KALEIDOSCOPE:
-        return {
-          type: 'kaleidoscope',
-          props: baseProps
-        };
-
-      case CONTENT_TYPES.GLITCH:
-        return {
-          type: 'glitch',
-          props: baseProps
-        };
-
-      case CONTENT_TYPES.SPIRAL:
-        return {
-          type: 'spiral',
-          props: baseProps
-        };
-
-      case CONTENT_TYPES.AUDIO_WAVES:
-        return {
-          type: 'audioWaves',
-          props: baseProps
-        };
-
-      case CONTENT_TYPES.AUDIO_PULSE:
-        return {
-          type: 'audioPulse',
-          props: baseProps
-        };
-
-      case CONTENT_TYPES.AUDIO_SPECTRUM:
-        return {
-          type: 'audioSpectrum',
-          props: baseProps
-        };
-
-      case CONTENT_TYPES.AUDIO_BARS:
-        return {
-          type: 'audioBars',
-          props: baseProps
-        };
-
-      case CONTENT_TYPES.CUSTOM_SHADER:
-        return {
-          type: 'customShader',
-          props: {
-            ...baseProps,
-            shaderData: surface.contentData?.shaderData
-          }
-        };
-
-      case CONTENT_TYPES.IMAGE:
-        return {
-          type: 'image',
-          props: {
-            ...baseProps,
-            imageUrl: surface.contentData?.imageUrl
-          }
-        };
-
-      default:
-        return {
-          type: 'meshBasicMaterial',
-          props: {
-            ...baseProps,
-            color: 0xffffff
-          }
-        };
-    }
-  }, [surface.contentType, surface.contentData, createCheckerboardTexture, createGridTexture]);
-
   // Animation loop for shader materials
   useFrame((state, delta) => {
-    if (materialRef.current && materialRef.current.uniforms) {
-      materialRef.current.uniforms.time.value += delta;
+    setTime(t => t + delta);
 
-      // Update audio uniforms for audio-reactive materials
+    // Update audio uniforms for audio-reactive materials
+    if (materialRef.current && materialRef.current.uniforms) {
+      if (materialRef.current.uniforms.time !== undefined) {
+        materialRef.current.uniforms.time.value = time;
+      }
+
       if (materialRef.current.uniforms.audioAmplitude !== undefined) {
         materialRef.current.uniforms.audioAmplitude.value = audioData.amplitude;
         materialRef.current.uniforms.audioBass.value = audioData.bass;
@@ -222,10 +64,33 @@ export function Surface({ surface }) {
     }
   });
 
+  // Prepare texture for basic materials
+  const texture = useMemo(() => {
+    switch (surface.contentType) {
+      case CONTENT_TYPES.CHECKERBOARD:
+        return createCheckerboardTexture();
+      case CONTENT_TYPES.GRID:
+        return createGridTexture();
+      default:
+        return null;
+    }
+  }, [surface.contentType, createCheckerboardTexture, createGridTexture]);
+
+  // Prepare custom shader data
+  const customShader = useMemo(() => {
+    if (surface.contentType === CONTENT_TYPES.CUSTOM_SHADER) {
+      return surface.contentData?.shaderData;
+    }
+    return null;
+  }, [surface.contentType, surface.contentData]);
+
   // Don't render if not visible
   if (!surface.visible) {
     return null;
   }
+
+  // Get material configuration from registry
+  const materialConfig = MaterialRegistry.get(surface.contentType);
 
   return (
     <mesh
@@ -233,45 +98,91 @@ export function Surface({ surface }) {
       geometry={geometry}
       renderOrder={surface.renderOrder || 0}
     >
-      {materialProps.type === 'animatedGradient' && (
-        <animatedGradientShaderMaterial ref={materialRef} {...materialProps.props} />
-      )}
-      {materialProps.type === 'rotatingColors' && (
-        <rotatingColorsShaderMaterial ref={materialRef} {...materialProps.props} />
-      )}
-      {materialProps.type === 'plasma' && (
-        <plasmaShaderMaterial ref={materialRef} {...materialProps.props} />
-      )}
-      {materialProps.type === 'waves' && (
-        <wavesShaderMaterial ref={materialRef} {...materialProps.props} />
-      )}
-      {materialProps.type === 'noise' && (
-        <noiseShaderMaterial ref={materialRef} {...materialProps.props} />
-      )}
-      {materialProps.type === 'fire' && (
-        <fireShaderMaterial ref={materialRef} {...materialProps.props} />
-      )}
-      {materialProps.type === 'rainbow' && (
-        <rainbowShaderMaterial ref={materialRef} {...materialProps.props} />
-      )}
-      {materialProps.type === 'kaleidoscope' && (
-        <kaleidoscopeShaderMaterial ref={materialRef} {...materialProps.props} />
-      )}
-      {materialProps.type === 'glitch' && (
-        <glitchShaderMaterial ref={materialRef} {...materialProps.props} />
-      )}
-      {materialProps.type === 'spiral' && (
-        <spiralShaderMaterial ref={materialRef} {...materialProps.props} />
-      )}
-      {materialProps.type === 'meshBasicMaterial' && (
-        <meshBasicMaterial {...materialProps.props} />
-      )}
-      {materialProps.type === 'image' && materialProps.props.imageUrl && (
-        <ImageMaterial url={materialProps.props.imageUrl} {...materialProps.props} />
-      )}
+      <DynamicMaterial
+        ref={materialRef}
+        surface={surface}
+        materialConfig={materialConfig}
+        time={time}
+        audioData={audioData}
+        texture={texture}
+        customShader={customShader}
+      />
     </mesh>
   );
 }
+
+/**
+ * DynamicMaterial Component
+ * Dynamically renders the appropriate material based on MaterialRegistry
+ */
+const DynamicMaterial = React.forwardRef(({
+  surface,
+  materialConfig,
+  time,
+  audioData,
+  texture,
+  customShader
+}, ref) => {
+  const baseProps = {
+    side: THREE.DoubleSide,
+    depthTest: false,
+    depthWrite: false
+  };
+
+  // Handle special cases first (basic materials using textures)
+  if (surface.contentType === CONTENT_TYPES.CHECKERBOARD ||
+      surface.contentType === CONTENT_TYPES.GRID) {
+    return <meshBasicMaterial {...baseProps} map={texture} />;
+  }
+
+  // Solid colors
+  if ([CONTENT_TYPES.WHITE, CONTENT_TYPES.RED, CONTENT_TYPES.GREEN, CONTENT_TYPES.BLUE].includes(surface.contentType)) {
+    return <meshBasicMaterial {...baseProps} color={getColorValue(surface.contentType)} />;
+  }
+
+  // Image material
+  if (surface.contentType === CONTENT_TYPES.IMAGE && surface.contentData?.imageUrl) {
+    return <ImageMaterial url={surface.contentData.imageUrl} {...baseProps} />;
+  }
+
+  // Custom shader
+  if (surface.contentType === CONTENT_TYPES.CUSTOM_SHADER && customShader) {
+    const MaterialComponent = materialConfig?.component;
+    if (MaterialComponent) {
+      return (
+        <MaterialComponent
+          ref={ref}
+          time={time}
+          vertexShader={customShader.vertexShader}
+          fragmentShader={customShader.fragmentShader}
+          uniforms={customShader.uniforms}
+          {...baseProps}
+        />
+      );
+    }
+  }
+
+  // Registry-based materials (shader materials)
+  if (materialConfig && materialConfig.component) {
+    const MaterialComponent = materialConfig.component;
+    const props = { ...baseProps, time };
+
+    // Add audio data if material is audio-reactive
+    if (materialConfig.audioReactive && audioData) {
+      props.audioAmplitude = audioData.amplitude;
+      props.audioBass = audioData.bass;
+      props.audioMid = audioData.mid;
+      props.audioTreble = audioData.treble;
+      props.audioFrequency = audioData.frequency;
+    }
+
+    return <MaterialComponent ref={ref} {...props} />;
+  }
+
+  // Fallback: white material
+  console.warn(`Material "${surface.contentType}" not found in registry. Using fallback.`);
+  return <meshBasicMaterial {...baseProps} color="#ffffff" />;
+});
 
 /**
  * Image Material Component
@@ -279,6 +190,5 @@ export function Surface({ surface }) {
  */
 function ImageMaterial({ url, ...props }) {
   const texture = useLoader(THREE.TextureLoader, url);
-
   return <meshBasicMaterial map={texture} {...props} />;
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getAllTemplates, getTemplate } from '../../scene/materials/shaderTemplates';
+import { getAllTemplates, getTemplate } from '../../materials/custom/shaderTemplates';
 import './ShaderEditorPanel.css';
 
 /**

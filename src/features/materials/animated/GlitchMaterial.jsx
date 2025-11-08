@@ -1,6 +1,7 @@
 import { shaderMaterial } from '@react-three/drei';
 import { extend } from '@react-three/fiber';
 import * as THREE from 'three';
+import { MaterialRegistry } from '../../../core/materials/MaterialRegistry';
 
 /**
  * Glitch Shader Material
@@ -71,5 +72,18 @@ GlitchShaderMaterial.side = THREE.DoubleSide;
 
 // Extend R3F with custom material
 extend({ GlitchShaderMaterial });
+
+// Register material with MaterialRegistry
+MaterialRegistry.register({
+  id: 'glitch',
+  name: 'Glitch',
+  category: 'animated',
+  component: GlitchShaderMaterial,
+  props: {
+    time: { type: 'float', default: 0 }
+  },
+  audioReactive: false,
+  description: 'Digital glitch and corruption effect'
+});
 
 export default GlitchShaderMaterial;

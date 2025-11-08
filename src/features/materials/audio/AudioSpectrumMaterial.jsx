@@ -1,6 +1,7 @@
 import { shaderMaterial } from '@react-three/drei';
 import { extend } from '@react-three/fiber';
 import * as THREE from 'three';
+import { MaterialRegistry } from '../../../core/materials/MaterialRegistry';
 
 /**
  * Audio Spectrum Shader Material
@@ -103,5 +104,23 @@ AudioSpectrumShaderMaterial.side = THREE.DoubleSide;
 
 // Extend R3F with custom material
 extend({ AudioSpectrumShaderMaterial });
+
+// Register material with MaterialRegistry
+MaterialRegistry.register({
+  id: 'audio-spectrum',
+  name: 'Audio Spectrum',
+  category: 'audio',
+  component: AudioSpectrumShaderMaterial,
+  props: {
+    time: { type: 'float', default: 0 },
+    audioAmplitude: { type: 'float', default: 0 },
+    audioBass: { type: 'float', default: 0 },
+    audioMid: { type: 'float', default: 0 },
+    audioTreble: { type: 'float', default: 0 },
+    audioFrequency: { type: 'float', default: 0 }
+  },
+  audioReactive: true,
+  description: 'Frequency spectrum visualizer with horizontal gradient'
+});
 
 export default AudioSpectrumShaderMaterial;

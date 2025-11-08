@@ -1,6 +1,7 @@
 import { shaderMaterial } from '@react-three/drei';
 import { extend } from '@react-three/fiber';
 import * as THREE from 'three';
+import { MaterialRegistry } from '../../../core/materials/MaterialRegistry';
 
 /**
  * Rotating Colors Shader Material
@@ -56,5 +57,18 @@ RotatingColorsShaderMaterial.side = THREE.DoubleSide;
 
 // Extend R3F with custom material
 extend({ RotatingColorsShaderMaterial });
+
+// Register material with MaterialRegistry
+MaterialRegistry.register({
+  id: 'rotating-colors',
+  name: 'Rotating Colors',
+  category: 'animated',
+  component: RotatingColorsShaderMaterial,
+  props: {
+    time: { type: 'float', default: 0 }
+  },
+  audioReactive: false,
+  description: 'Rotating color wheel effect using HSV'
+});
 
 export default RotatingColorsShaderMaterial;

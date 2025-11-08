@@ -1,6 +1,7 @@
 import { shaderMaterial } from '@react-three/drei';
 import { extend } from '@react-three/fiber';
 import * as THREE from 'three';
+import { MaterialRegistry } from '../../../core/materials/MaterialRegistry';
 
 /**
  * Audio Pulse Shader Material
@@ -77,5 +78,23 @@ AudioPulseShaderMaterial.side = THREE.DoubleSide;
 
 // Extend R3F with custom material
 extend({ AudioPulseShaderMaterial });
+
+// Register material with MaterialRegistry
+MaterialRegistry.register({
+  id: 'audio-pulse',
+  name: 'Audio Pulse',
+  category: 'audio',
+  component: AudioPulseShaderMaterial,
+  props: {
+    time: { type: 'float', default: 0 },
+    audioAmplitude: { type: 'float', default: 0 },
+    audioBass: { type: 'float', default: 0 },
+    audioMid: { type: 'float', default: 0 },
+    audioTreble: { type: 'float', default: 0 },
+    audioFrequency: { type: 'float', default: 0 }
+  },
+  audioReactive: true,
+  description: 'Pulsing circular patterns that respond to audio amplitude'
+});
 
 export default AudioPulseShaderMaterial;

@@ -1,6 +1,7 @@
 import { shaderMaterial } from '@react-three/drei';
 import { extend } from '@react-three/fiber';
 import * as THREE from 'three';
+import { MaterialRegistry } from '../../../core/materials/MaterialRegistry';
 
 /**
  * Kaleidoscope Shader Material
@@ -67,5 +68,18 @@ KaleidoscopeShaderMaterial.side = THREE.DoubleSide;
 
 // Extend R3F with custom material
 extend({ KaleidoscopeShaderMaterial });
+
+// Register material with MaterialRegistry
+MaterialRegistry.register({
+  id: 'kaleidoscope',
+  name: 'Kaleidoscope',
+  category: 'animated',
+  component: KaleidoscopeShaderMaterial,
+  props: {
+    time: { type: 'float', default: 0 }
+  },
+  audioReactive: false,
+  description: 'Symmetric kaleidoscope pattern'
+});
 
 export default KaleidoscopeShaderMaterial;

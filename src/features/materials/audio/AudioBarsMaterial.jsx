@@ -1,6 +1,7 @@
 import { shaderMaterial } from '@react-three/drei';
 import { extend } from '@react-three/fiber';
 import * as THREE from 'three';
+import { MaterialRegistry } from '../../../core/materials/MaterialRegistry';
 
 /**
  * Audio Bars Shader Material
@@ -123,5 +124,23 @@ AudioBarsShaderMaterial.side = THREE.DoubleSide;
 
 // Extend R3F with custom material
 extend({ AudioBarsShaderMaterial });
+
+// Register material with MaterialRegistry
+MaterialRegistry.register({
+  id: 'audio-bars',
+  name: 'Audio Bars',
+  category: 'audio',
+  component: AudioBarsShaderMaterial,
+  props: {
+    time: { type: 'float', default: 0 },
+    audioAmplitude: { type: 'float', default: 0 },
+    audioBass: { type: 'float', default: 0 },
+    audioMid: { type: 'float', default: 0 },
+    audioTreble: { type: 'float', default: 0 },
+    audioFrequency: { type: 'float', default: 0 }
+  },
+  audioReactive: true,
+  description: 'Classic audio visualizer with vertical bars'
+});
 
 export default AudioBarsShaderMaterial;
