@@ -3,7 +3,8 @@ import { useFrame, useLoader, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { TransformCalculator } from '../../calibration/utils/TransformCalculator';
 import { useContentManager, getColorValue } from '../hooks/useContentManager';
-import { CONTENT_TYPES, GEOMETRY_SUBDIVISIONS } from '../../../shared/utils/constants';
+import { CONTENT_TYPES, GEOMETRY_SUBDIVISIONS, GEOMETRY_TYPES } from '../../../shared/utils/constants';
+import { GeometryGenerator } from '../utils/GeometryGenerator';
 import AnimatedGradientShaderMaterial from '../materials/AnimatedGradientMaterial';
 import RotatingColorsShaderMaterial from '../materials/RotatingColorsMaterial';
 
@@ -17,18 +18,26 @@ export function Surface({ surface }) {
   const { createCheckerboardTexture, createGridTexture } = useContentManager();
   const { size } = useThree();
 
-  // Create geometry with subdivisions for perspective transformation
+  // Create geometry based on geometry type
   const geometry = useMemo(() => {
-    const geom = new THREE.PlaneGeometry(2, 2, GEOMETRY_SUBDIVISIONS, GEOMETRY_SUBDIVISIONS);
+    const geom = GeometryGenerator.createGeometry(
+      surface.geometryType || GEOMETRY_TYPES.RECTANGLE,
+      surface.cornerCount || 4,
+      GEOMETRY_SUBDIVISIONS
+    );
     return geom;
-  }, []);
+  }, [surface.geometryType, surface.cornerCount]);
 
   // Apply perspective transformation to geometry when corners change OR window resizes
   useEffect(() => {
     if (meshRef.current && surface.corners) {
-      TransformCalculator.applyTransformToGeometry(geometry, surface.corners);
+      TransformCalculator.applyTransformToGeometry(
+        geometry,
+        surface.corners,
+        surface.geometryType || GEOMETRY_TYPES.RECTANGLE
+      );
     }
-  }, [surface.corners, geometry, size.width, size.height]);
+  }, [surface.corners, geometry, surface.geometryType, size.width, size.height]);
 
   // Create material based on content type
   const materialProps = useMemo(() => {

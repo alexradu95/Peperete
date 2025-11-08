@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
-import { DEFAULT_SURFACE_CONFIG, STORAGE_KEYS, getDefaultCorners } from '../../../shared/utils/constants';
+import { DEFAULT_SURFACE_CONFIG, STORAGE_KEYS, getDefaultCorners, GEOMETRY_TYPES } from '../../../shared/utils/constants';
 import { useStorage } from '../../../shared/hooks/useStorage';
 
 /**
@@ -17,9 +17,15 @@ export function SurfaceProvider({ children }) {
   const [surfaces, setSurfaces] = useState(() => {
     const map = new Map();
     storedSurfaces.forEach(surface => {
-      // Ensure loaded surfaces have valid corners
-      if (!surface.corners || !surface.corners.topLeft) {
-        surface.corners = getDefaultCorners();
+      // Ensure loaded surfaces have valid corners and geometry type
+      if (!surface.geometryType) {
+        surface.geometryType = GEOMETRY_TYPES.RECTANGLE;
+      }
+      if (!surface.cornerCount) {
+        surface.cornerCount = 4;
+      }
+      if (!surface.corners || Object.keys(surface.corners).length === 0) {
+        surface.corners = getDefaultCorners(surface.geometryType, surface.cornerCount);
       }
       map.set(surface.id, surface);
     });
@@ -39,10 +45,15 @@ export function SurfaceProvider({ children }) {
   // Add new surface
   const addSurface = useCallback((config = {}) => {
     const id = `surface-${nextIdRef.current++}`;
+    const geometryType = config.geometryType || DEFAULT_SURFACE_CONFIG.geometryType;
+    const cornerCount = config.cornerCount || DEFAULT_SURFACE_CONFIG.cornerCount;
+
     const newSurface = {
       id,
       ...DEFAULT_SURFACE_CONFIG,
-      corners: getDefaultCorners(), // Get default corners based on current window size
+      geometryType,
+      cornerCount,
+      corners: getDefaultCorners(geometryType, cornerCount), // Get default corners based on geometry type
       ...config,
       name: config.name || `Surface ${nextIdRef.current - 1}`
     };
@@ -148,24 +159,14 @@ export function SurfaceProvider({ children }) {
           const next = new Map();
           prev.forEach((surface, id) => {
             if (surface.corners) {
-              const scaledCorners = {
-                topLeft: {
-                  x: surface.corners.topLeft.x * scaleX,
-                  y: surface.corners.topLeft.y * scaleY
-                },
-                topRight: {
-                  x: surface.corners.topRight.x * scaleX,
-                  y: surface.corners.topRight.y * scaleY
-                },
-                bottomLeft: {
-                  x: surface.corners.bottomLeft.x * scaleX,
-                  y: surface.corners.bottomLeft.y * scaleY
-                },
-                bottomRight: {
-                  x: surface.corners.bottomRight.x * scaleX,
-                  y: surface.corners.bottomRight.y * scaleY
-                }
-              };
+              const scaledCorners = {};
+              // Scale all corner points regardless of naming convention
+              Object.keys(surface.corners).forEach(key => {
+                scaledCorners[key] = {
+                  x: surface.corners[key].x * scaleX,
+                  y: surface.corners[key].y * scaleY
+                };
+              });
               next.set(id, { ...surface, corners: scaledCorners });
             } else {
               next.set(id, surface);

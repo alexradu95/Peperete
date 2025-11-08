@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useSurfaces } from '../../surface-manager/context/SurfaceContext';
 import { useApp } from '../../../shared/context/AppContext';
 import { CONTENT_TYPES, APP_MODES } from '../../../shared/utils/constants';
+import { GeometryTypeModal } from './GeometryTypeModal';
 import './SurfacePanel.css';
 
 /**
@@ -22,9 +23,14 @@ export function SurfacePanel() {
 
   const { mode, showNotification } = useApp();
   const surfaces = getAllSurfaces();
+  const [showGeometryModal, setShowGeometryModal] = useState(false);
 
   const handleAddSurface = () => {
-    const id = addSurface();
+    setShowGeometryModal(true);
+  };
+
+  const handleGeometrySelect = (geometryType, cornerCount) => {
+    const id = addSurface({ geometryType, cornerCount });
     showNotification('Surface added');
   };
 
@@ -69,13 +75,20 @@ export function SurfacePanel() {
   };
 
   return (
-    <div className="surface-panel">
-      <div className="surface-panel-header">
-        <h2>Surfaces</h2>
-        <button className="btn-add" onClick={handleAddSurface}>
-          + Add Surface
-        </button>
-      </div>
+    <>
+      <GeometryTypeModal
+        isOpen={showGeometryModal}
+        onClose={() => setShowGeometryModal(false)}
+        onSelect={handleGeometrySelect}
+      />
+
+      <div className="surface-panel">
+        <div className="surface-panel-header">
+          <h2>Surfaces</h2>
+          <button className="btn-add" onClick={handleAddSurface}>
+            + Add Surface
+          </button>
+        </div>
 
       <div className="surface-list">
         {surfaces.length === 0 ? (
@@ -168,11 +181,12 @@ export function SurfacePanel() {
         )}
       </div>
 
-      <div className="surface-panel-footer">
-        <div className="surface-count">
-          {surfaces.length} surface{surfaces.length !== 1 ? 's' : ''}
+        <div className="surface-panel-footer">
+          <div className="surface-count">
+            {surfaces.length} surface{surfaces.length !== 1 ? 's' : ''}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

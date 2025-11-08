@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { GEOMETRY_TYPES } from '../../../shared/utils/constants';
 
 /**
  * TransformCalculator - Calculates and applies perspective transformations
@@ -100,12 +101,12 @@ export class TransformCalculator {
   }
 
   /**
-   * Apply perspective transformation to projection quad geometry
-   * @param {THREE.PlaneGeometry} geometry - The plane geometry to transform
+   * Apply perspective transformation to projection geometry
+   * @param {THREE.BufferGeometry} geometry - The geometry to transform
    * @param {Object} corners - Corner positions
+   * @param {string} geometryType - Type of geometry
    */
-  static applyTransformToGeometry(geometry, corners) {
-    const transform = this.calculateHomography(corners);
+  static applyTransformToGeometry(geometry, corners, geometryType = GEOMETRY_TYPES.RECTANGLE) {
     const positions = geometry.attributes.position;
 
     // Get the original positions (before any transformation)
@@ -114,6 +115,23 @@ export class TransformCalculator {
     }
 
     const originalPositions = geometry.userData.originalPositions;
+
+    // Choose transformation based on geometry type
+    let transform;
+    switch (geometryType) {
+      case GEOMETRY_TYPES.RECTANGLE:
+        transform = this.calculateHomography(corners);
+        break;
+      case GEOMETRY_TYPES.TRIANGLE:
+        transform = this.calculateTriangleTransform(corners);
+        break;
+      case GEOMETRY_TYPES.CIRCLE:
+      case GEOMETRY_TYPES.CUSTOM:
+        transform = this.calculatePolygonTransform(corners);
+        break;
+      default:
+        transform = this.calculateHomography(corners);
+    }
 
     // Transform each vertex
     for (let i = 0; i < positions.count; i++) {
@@ -134,6 +152,105 @@ export class TransformCalculator {
 
     positions.needsUpdate = true;
     geometry.computeBoundingSphere();
+  }
+
+  /**
+   * Calculate transformation for triangle geometry
+   * @param {Object} corners - Triangle corner positions (point0, point1, point2)
+   * @returns {Function} Transform function
+   */
+  static calculateTriangleTransform(corners) {
+    const p0 = {
+      x: this.normalizeX(corners.point0.x),
+      y: this.normalizeY(corners.point0.y)
+    };
+    const p1 = {
+      x: this.normalizeX(corners.point1.x),
+      y: this.normalizeY(corners.point1.y)
+    };
+    const p2 = {
+      x: this.normalizeX(corners.point2.x),
+      y: this.normalizeY(corners.point2.y)
+    };
+
+    return {
+      transform: (x, y) => {
+        // Map from triangle in normalized space to target triangle
+        // Original triangle vertices in normalized space:
+        // Top: (0, 1), Bottom-left: (-0.866, -0.5), Bottom-right: (0.866, -0.5)
+
+        // Calculate barycentric coordinates
+        const denom = (-0.866 - 0) * (-0.5 - 1) - (0.866 - 0) * (-0.5 - 1);
+        const w0 = ((0.866 - 0) * (y - 1) - (0 - 0) * (x - 0)) / denom;
+        const w1 = ((0 - 0.866) * (y - 1) - (0 - 0) * (x - 0.866)) / denom;
+        const w2 = 1 - w0 - w1;
+
+        // Interpolate to target positions
+        const resultX = p0.x * w2 + p1.x * w0 + p2.x * w1;
+        const resultY = p0.y * w2 + p1.y * w0 + p2.y * w1;
+
+        return [resultX, resultY];
+      }
+    };
+  }
+
+  /**
+   * Calculate transformation for polygon/circle geometry
+   * @param {Object} corners - Polygon corner positions (point0, point1, ...)
+   * @returns {Function} Transform function
+   */
+  static calculatePolygonTransform(corners) {
+    // Normalize all corner positions
+    const normalizedCorners = Object.keys(corners).map(key => ({
+      x: this.normalizeX(corners[key].x),
+      y: this.normalizeY(corners[key].y)
+    }));
+
+    const numPoints = normalizedCorners.length;
+
+    return {
+      transform: (x, y) => {
+        // For polygon/circle, use radial interpolation
+        const angle = Math.atan2(y, x);
+        const radius = Math.sqrt(x * x + y * y);
+
+        // Normalize angle to 0-1 range
+        const normalizedAngle = (angle + Math.PI) / (Math.PI * 2);
+
+        // Find the two closest control points
+        const segmentIndex = Math.floor(normalizedAngle * numPoints);
+        const nextIndex = (segmentIndex + 1) % numPoints;
+
+        // Interpolation factor within segment
+        const t = (normalizedAngle * numPoints) - segmentIndex;
+
+        // Get the two control points
+        const p1 = normalizedCorners[segmentIndex];
+        const p2 = normalizedCorners[nextIndex];
+
+        // Calculate original angle for these points
+        const originalAngle1 = (segmentIndex / numPoints) * Math.PI * 2 - Math.PI / 2;
+        const originalAngle2 = (nextIndex / numPoints) * Math.PI * 2 - Math.PI / 2;
+
+        // Original positions on unit circle
+        const origX1 = Math.cos(originalAngle1);
+        const origY1 = Math.sin(originalAngle1);
+        const origX2 = Math.cos(originalAngle2);
+        const origY2 = Math.sin(originalAngle2);
+
+        // Interpolate target positions
+        const targetX = p1.x * (1 - t) + p2.x * t;
+        const targetY = p1.y * (1 - t) + p2.y * t;
+
+        // Calculate the radius at this point based on actual distance from center
+        const targetRadius = Math.sqrt(targetX * targetX + targetY * targetY);
+
+        // Scale by the actual vertex radius
+        const scale = targetRadius / 1.0; // Normalize to unit circle
+
+        return [targetX * radius, targetY * radius];
+      }
+    };
   }
 
   /**

@@ -1,8 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import { useSurfaces } from '../../surface-manager/context/SurfaceContext';
 import { useApp } from '../../../shared/context/AppContext';
-import { APP_MODES } from '../../../shared/utils/constants';
+import { APP_MODES, GEOMETRY_TYPES } from '../../../shared/utils/constants';
 import { CornerPoint } from './CornerPoint';
+import { GeometryGenerator } from '../../scene/utils/GeometryGenerator';
 import GUI from 'lil-gui';
 import './CalibrationMode.css';
 
@@ -52,40 +53,21 @@ export function CalibrationMode() {
 
     gui.title(surface.name);
 
-    // Top Left
-    const tlFolder = gui.addFolder('Top Left');
-    tlFolder.add(surface.corners.topLeft, 'x', 0, window.innerWidth).onChange((value) => {
-      handleCornerDrag('topLeft', { ...surface.corners.topLeft, x: value });
-    });
-    tlFolder.add(surface.corners.topLeft, 'y', 0, window.innerHeight).onChange((value) => {
-      handleCornerDrag('topLeft', { ...surface.corners.topLeft, y: value });
-    });
+    // Get corner keys based on geometry type
+    const cornerKeys = GeometryGenerator.getCornerKeys(surface.geometryType, surface.cornerCount);
 
-    // Top Right
-    const trFolder = gui.addFolder('Top Right');
-    trFolder.add(surface.corners.topRight, 'x', 0, window.innerWidth).onChange((value) => {
-      handleCornerDrag('topRight', { ...surface.corners.topRight, x: value });
-    });
-    trFolder.add(surface.corners.topRight, 'y', 0, window.innerHeight).onChange((value) => {
-      handleCornerDrag('topRight', { ...surface.corners.topRight, y: value });
-    });
+    // Create folders for each corner
+    cornerKeys.forEach((cornerKey, index) => {
+      const cornerLabel = getCornerLabel(cornerKey, index);
+      const folder = gui.addFolder(cornerLabel);
 
-    // Bottom Left
-    const blFolder = gui.addFolder('Bottom Left');
-    blFolder.add(surface.corners.bottomLeft, 'x', 0, window.innerWidth).onChange((value) => {
-      handleCornerDrag('bottomLeft', { ...surface.corners.bottomLeft, x: value });
-    });
-    blFolder.add(surface.corners.bottomLeft, 'y', 0, window.innerHeight).onChange((value) => {
-      handleCornerDrag('bottomLeft', { ...surface.corners.bottomLeft, y: value });
-    });
+      folder.add(surface.corners[cornerKey], 'x', 0, window.innerWidth).onChange((value) => {
+        handleCornerDrag(cornerKey, { ...surface.corners[cornerKey], x: value });
+      });
 
-    // Bottom Right
-    const brFolder = gui.addFolder('Bottom Right');
-    brFolder.add(surface.corners.bottomRight, 'x', 0, window.innerWidth).onChange((value) => {
-      handleCornerDrag('bottomRight', { ...surface.corners.bottomRight, x: value });
-    });
-    brFolder.add(surface.corners.bottomRight, 'y', 0, window.innerHeight).onChange((value) => {
-      handleCornerDrag('bottomRight', { ...surface.corners.bottomRight, y: value });
+      folder.add(surface.corners[cornerKey], 'y', 0, window.innerHeight).onChange((value) => {
+        handleCornerDrag(cornerKey, { ...surface.corners[cornerKey], y: value });
+      });
     });
 
     return () => {
@@ -94,7 +76,16 @@ export function CalibrationMode() {
         guiRef.current = null;
       }
     };
-  }, [mode, surface?.id, surface?.name]); // Recreate GUI when surface changes
+  }, [mode, surface?.id, surface?.name, surface?.geometryType]); // Recreate GUI when surface changes
+
+  // Helper function to get corner label
+  const getCornerLabel = (cornerKey, index) => {
+    if (cornerKey === 'topLeft') return 'Top Left';
+    if (cornerKey === 'topRight') return 'Top Right';
+    if (cornerKey === 'bottomLeft') return 'Bottom Left';
+    if (cornerKey === 'bottomRight') return 'Bottom Right';
+    return `Point ${index + 1}`;
+  };
 
   // Don't render if not in calibration mode
   if (mode !== APP_MODES.CALIBRATION) {
@@ -113,33 +104,24 @@ export function CalibrationMode() {
     );
   }
 
+  // Get corner keys for rendering
+  const cornerKeys = GeometryGenerator.getCornerKeys(surface.geometryType, surface.cornerCount);
+
   return (
     <div className="calibration-overlay">
-      {/* Corner Points */}
-      <CornerPoint
-        corner="topLeft"
-        position={surface.corners.topLeft}
-        onDrag={handleCornerDrag}
-        label="TL"
-      />
-      <CornerPoint
-        corner="topRight"
-        position={surface.corners.topRight}
-        onDrag={handleCornerDrag}
-        label="TR"
-      />
-      <CornerPoint
-        corner="bottomLeft"
-        position={surface.corners.bottomLeft}
-        onDrag={handleCornerDrag}
-        label="BL"
-      />
-      <CornerPoint
-        corner="bottomRight"
-        position={surface.corners.bottomRight}
-        onDrag={handleCornerDrag}
-        label="BR"
-      />
+      {/* Corner Points - dynamically rendered based on geometry type */}
+      {cornerKeys.map((cornerKey, index) => {
+        const label = getCornerShortLabel(cornerKey, index);
+        return (
+          <CornerPoint
+            key={cornerKey}
+            corner={cornerKey}
+            position={surface.corners[cornerKey]}
+            onDrag={handleCornerDrag}
+            label={label}
+          />
+        );
+      })}
 
       {/* lil-gui container */}
       <div ref={guiContainerRef} className="calibration-gui" />
@@ -152,4 +134,13 @@ export function CalibrationMode() {
       </div>
     </div>
   );
+}
+
+// Helper function to get short corner label for visual display
+function getCornerShortLabel(cornerKey, index) {
+  if (cornerKey === 'topLeft') return 'TL';
+  if (cornerKey === 'topRight') return 'TR';
+  if (cornerKey === 'bottomLeft') return 'BL';
+  if (cornerKey === 'bottomRight') return 'BR';
+  return `${index + 1}`;
 }

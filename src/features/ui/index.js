@@ -6,3 +6,4 @@
 export { SurfacePanel } from './components/SurfacePanel';
 export { StatusBar } from './components/StatusBar';
 export { Notification } from './components/Notification';
+export { GeometryTypeModal } from './components/GeometryTypeModal';
