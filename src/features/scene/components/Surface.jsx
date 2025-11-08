@@ -5,6 +5,7 @@ import { TransformCalculator } from '../../calibration/utils/TransformCalculator
 import { useContentManager, getColorValue } from '../hooks/useContentManager';
 import { CONTENT_TYPES, GEOMETRY_SUBDIVISIONS, GEOMETRY_TYPES } from '../../../shared/utils/constants';
 import { GeometryGenerator } from '../utils/GeometryGenerator';
+import { useAudio } from '../../../shared/context/AudioContext';
 import AnimatedGradientShaderMaterial from '../materials/AnimatedGradientMaterial';
 import RotatingColorsShaderMaterial from '../materials/RotatingColorsMaterial';
 import PlasmaShaderMaterial from '../materials/PlasmaMaterial';
@@ -15,6 +16,10 @@ import RainbowShaderMaterial from '../materials/RainbowMaterial';
 import KaleidoscopeShaderMaterial from '../materials/KaleidoscopeMaterial';
 import GlitchShaderMaterial from '../materials/GlitchMaterial';
 import SpiralShaderMaterial from '../materials/SpiralMaterial';
+import AudioWavesShaderMaterial from '../materials/AudioWavesMaterial';
+import AudioPulseShaderMaterial from '../materials/AudioPulseMaterial';
+import AudioSpectrumShaderMaterial from '../materials/AudioSpectrumMaterial';
+import AudioBarsShaderMaterial from '../materials/AudioBarsMaterial';
 import { CustomShaderMaterial } from '../materials/CustomShaderMaterial';
 
 /**
@@ -26,6 +31,7 @@ export function Surface({ surface }) {
   const materialRef = useRef();
   const { createCheckerboardTexture, createGridTexture } = useContentManager();
   const { size } = useThree();
+  const { audioData } = useAudio();
 
   // Create geometry based on geometry type
   const geometry = useMemo(() => {
@@ -147,6 +153,30 @@ export function Surface({ surface }) {
           props: baseProps
         };
 
+      case CONTENT_TYPES.AUDIO_WAVES:
+        return {
+          type: 'audioWaves',
+          props: baseProps
+        };
+
+      case CONTENT_TYPES.AUDIO_PULSE:
+        return {
+          type: 'audioPulse',
+          props: baseProps
+        };
+
+      case CONTENT_TYPES.AUDIO_SPECTRUM:
+        return {
+          type: 'audioSpectrum',
+          props: baseProps
+        };
+
+      case CONTENT_TYPES.AUDIO_BARS:
+        return {
+          type: 'audioBars',
+          props: baseProps
+        };
+
       case CONTENT_TYPES.CUSTOM_SHADER:
         return {
           type: 'customShader',
@@ -180,6 +210,15 @@ export function Surface({ surface }) {
   useFrame((state, delta) => {
     if (materialRef.current && materialRef.current.uniforms) {
       materialRef.current.uniforms.time.value += delta;
+
+      // Update audio uniforms for audio-reactive materials
+      if (materialRef.current.uniforms.audioAmplitude !== undefined) {
+        materialRef.current.uniforms.audioAmplitude.value = audioData.amplitude;
+        materialRef.current.uniforms.audioBass.value = audioData.bass;
+        materialRef.current.uniforms.audioMid.value = audioData.mid;
+        materialRef.current.uniforms.audioTreble.value = audioData.treble;
+        materialRef.current.uniforms.audioFrequency.value = audioData.frequency;
+      }
     }
   });
 
@@ -223,16 +262,6 @@ export function Surface({ surface }) {
       )}
       {materialProps.type === 'spiral' && (
         <spiralShaderMaterial ref={materialRef} {...materialProps.props} />
-      )}
-      {materialProps.type === 'customShader' && materialProps.props.shaderData && (
-        <CustomShaderMaterial
-          vertexShader={materialProps.props.shaderData.vertexShader}
-          fragmentShader={materialProps.props.shaderData.fragmentShader}
-          uniforms={materialProps.props.shaderData.uniforms || {}}
-          side={materialProps.props.side}
-          depthTest={materialProps.props.depthTest}
-          depthWrite={materialProps.props.depthWrite}
-        />
       )}
       {materialProps.type === 'meshBasicMaterial' && (
         <meshBasicMaterial {...materialProps.props} />

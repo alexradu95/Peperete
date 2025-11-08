@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useSurfaces } from '../../surface-manager/context/SurfaceContext';
 import { useApp } from '../../../shared/context/AppContext';
+import { useAudio } from '../../../shared/context/AudioContext';
 import { CONTENT_TYPES, APP_MODES } from '../../../shared/utils/constants';
 import { GeometryTypeModal } from './GeometryTypeModal';
 import { ShaderEditorPanel } from './ShaderEditorPanel';
@@ -24,6 +25,7 @@ export function SurfacePanel() {
   } = useSurfaces();
 
   const { mode, showNotification, isSidebarVisible } = useApp();
+  const { isAudioEnabled, toggleAudio, audioData, error } = useAudio();
   const surfaces = getAllSurfaces();
   const [showGeometryModal, setShowGeometryModal] = useState(false);
   const [showShaderEditor, setShowShaderEditor] = useState(false);
@@ -136,6 +138,13 @@ export function SurfacePanel() {
         <div className="surface-panel-header">
           <h2>Surfaces</h2>
           <div className="header-buttons">
+            <button
+              className={`btn-audio ${isAudioEnabled ? 'active' : ''}`}
+              onClick={toggleAudio}
+              title={isAudioEnabled ? 'Disable microphone' : 'Enable microphone'}
+            >
+              {isAudioEnabled ? '🎤 Audio ON' : '🎤 Audio OFF'}
+            </button>
             <button className="btn-launch-live" onClick={handleLaunchLiveView} title="Open live view in new window">
               Launch Live View
             </button>
@@ -144,6 +153,35 @@ export function SurfacePanel() {
             </button>
           </div>
         </div>
+
+        {isAudioEnabled && (
+          <div className="audio-status">
+            <div className="audio-meter">
+              <div className="meter-label">Bass</div>
+              <div className="meter-bar">
+                <div className="meter-fill" style={{ width: `${audioData.bass * 100}%` }} />
+              </div>
+            </div>
+            <div className="audio-meter">
+              <div className="meter-label">Mid</div>
+              <div className="meter-bar">
+                <div className="meter-fill" style={{ width: `${audioData.mid * 100}%` }} />
+              </div>
+            </div>
+            <div className="audio-meter">
+              <div className="meter-label">Treble</div>
+              <div className="meter-bar">
+                <div className="meter-fill" style={{ width: `${audioData.treble * 100}%` }} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <div className="audio-error">
+            Error: {error}
+          </div>
+        )}
 
       <div className="surface-list">
         {surfaces.length === 0 ? (
@@ -210,7 +248,6 @@ export function SurfacePanel() {
                         <option value={CONTENT_TYPES.KALEIDOSCOPE}>Kaleidoscope</option>
                         <option value={CONTENT_TYPES.GLITCH}>Glitch</option>
                         <option value={CONTENT_TYPES.SPIRAL}>Spiral</option>
-                        <option value={CONTENT_TYPES.CUSTOM_SHADER}>🎨 Custom Shader (Edit in Real-time)</option>
                       </optgroup>
                       <optgroup label="Solid Colors">
                         <option value={CONTENT_TYPES.WHITE}>White</option>

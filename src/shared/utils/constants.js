@@ -25,7 +25,12 @@ export const CONTENT_TYPES = {
   RED: 'red',
   GREEN: 'green',
   BLUE: 'blue',
-  IMAGE: 'image'
+  IMAGE: 'image',
+  // Audio-reactive effects
+  AUDIO_WAVES: 'audio-waves',
+  AUDIO_PULSE: 'audio-pulse',
+  AUDIO_SPECTRUM: 'audio-spectrum',
+  AUDIO_BARS: 'audio-bars'
 };
 
 export const GEOMETRY_TYPES = {
@@ -64,7 +69,8 @@ export const DEFAULT_SURFACE_CONFIG = {
   geometryType: GEOMETRY_TYPES.POLYGON,
   cornerCount: 4,
   visible: true,
-  renderOrder: 0
+  renderOrder: 0,
+  audioReactive: false
 };
 
 export const KEYBOARD_SHORTCUTS = {
