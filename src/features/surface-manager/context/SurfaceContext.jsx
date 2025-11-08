@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
 import { DEFAULT_SURFACE_CONFIG, STORAGE_KEYS, getDefaultCorners } from '../../../shared/utils/constants';
 import { useStorage } from '../../../shared/hooks/useStorage';
 
@@ -28,6 +28,7 @@ export function SurfaceProvider({ children }) {
 
   const [selectedSurfaceId, setSelectedSurfaceId] = useState(null);
   const nextIdRef = useRef(storedSurfaces.length + 1);
+  const previousSizeRef = useRef({ width: window.innerWidth, height: window.innerHeight });
 
   // Sync surfaces to localStorage whenever they change
   const syncToStorage = useCallback((surfacesMap) => {
@@ -129,6 +130,58 @@ export function SurfaceProvider({ children }) {
     setSelectedSurfaceId(null);
     nextIdRef.current = 1;
   }, [setStoredSurfaces]);
+
+  // Handle window resize - scale all corner positions proportionally
+  useEffect(() => {
+    const handleResize = () => {
+      const currentWidth = window.innerWidth;
+      const currentHeight = window.innerHeight;
+      const prevWidth = previousSizeRef.current.width;
+      const prevHeight = previousSizeRef.current.height;
+
+      // Only scale if window size actually changed
+      if (currentWidth !== prevWidth || currentHeight !== prevHeight) {
+        const scaleX = currentWidth / prevWidth;
+        const scaleY = currentHeight / prevHeight;
+
+        setSurfaces(prev => {
+          const next = new Map();
+          prev.forEach((surface, id) => {
+            if (surface.corners) {
+              const scaledCorners = {
+                topLeft: {
+                  x: surface.corners.topLeft.x * scaleX,
+                  y: surface.corners.topLeft.y * scaleY
+                },
+                topRight: {
+                  x: surface.corners.topRight.x * scaleX,
+                  y: surface.corners.topRight.y * scaleY
+                },
+                bottomLeft: {
+                  x: surface.corners.bottomLeft.x * scaleX,
+                  y: surface.corners.bottomLeft.y * scaleY
+                },
+                bottomRight: {
+                  x: surface.corners.bottomRight.x * scaleX,
+                  y: surface.corners.bottomRight.y * scaleY
+                }
+              };
+              next.set(id, { ...surface, corners: scaledCorners });
+            } else {
+              next.set(id, surface);
+            }
+          });
+          syncToStorage(next);
+          return next;
+        });
+
+        previousSizeRef.current = { width: currentWidth, height: currentHeight };
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [syncToStorage]);
 
   const value = {
     surfaces,
