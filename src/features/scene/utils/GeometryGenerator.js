@@ -47,11 +47,10 @@ export class GeometryGenerator {
 
     // Triangle vertices in normalized space (-1 to 1)
     const vertices = [];
+    const uvs = [];
     const indices = [];
 
     // Generate subdivided triangle
-    const steps = subdivisions + 1;
-
     for (let i = 0; i <= subdivisions; i++) {
       const v = i / subdivisions; // 0 to 1 from top to bottom
 
@@ -69,6 +68,9 @@ export class GeometryGenerator {
         const y = 1 - v * 1.5;
 
         vertices.push(x, y, 0);
+
+        // Add UV coordinates for texture mapping
+        uvs.push(u, 1 - v);
       }
     }
 
@@ -76,7 +78,6 @@ export class GeometryGenerator {
     let vertexIndex = 0;
     for (let i = 0; i < subdivisions; i++) {
       const numInRow = i + 1;
-      const numInNextRow = i + 2;
 
       for (let j = 0; j < numInRow; j++) {
         // First triangle
@@ -96,6 +97,7 @@ export class GeometryGenerator {
     }
 
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+    geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
     geometry.setIndex(indices);
     geometry.computeVertexNormals();
 

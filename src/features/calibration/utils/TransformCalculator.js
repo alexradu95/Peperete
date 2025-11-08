@@ -200,8 +200,15 @@ export class TransformCalculator {
    * @returns {Function} Transform function
    */
   static calculatePolygonTransform(corners) {
-    // Normalize all corner positions
-    const normalizedCorners = Object.keys(corners).map(key => ({
+    // Sort corner keys to ensure proper order (point0, point1, point2, ...)
+    const sortedKeys = Object.keys(corners).sort((a, b) => {
+      const aNum = parseInt(a.replace('point', ''));
+      const bNum = parseInt(b.replace('point', ''));
+      return aNum - bNum;
+    });
+
+    // Normalize all corner positions in sorted order
+    const normalizedCorners = sortedKeys.map(key => ({
       x: this.normalizeX(corners[key].x),
       y: this.normalizeY(corners[key].y)
     }));
@@ -218,36 +225,29 @@ export class TransformCalculator {
         const normalizedAngle = (angle + Math.PI) / (Math.PI * 2);
 
         // Find the two closest control points
-        const segmentIndex = Math.floor(normalizedAngle * numPoints);
+        let segmentIndex = Math.floor(normalizedAngle * numPoints);
+
+        // Ensure segment index is within bounds
+        segmentIndex = Math.max(0, Math.min(numPoints - 1, segmentIndex));
         const nextIndex = (segmentIndex + 1) % numPoints;
 
         // Interpolation factor within segment
         const t = (normalizedAngle * numPoints) - segmentIndex;
 
-        // Get the two control points
+        // Get the two control points with safety checks
         const p1 = normalizedCorners[segmentIndex];
         const p2 = normalizedCorners[nextIndex];
 
-        // Calculate original angle for these points
-        const originalAngle1 = (segmentIndex / numPoints) * Math.PI * 2 - Math.PI / 2;
-        const originalAngle2 = (nextIndex / numPoints) * Math.PI * 2 - Math.PI / 2;
-
-        // Original positions on unit circle
-        const origX1 = Math.cos(originalAngle1);
-        const origY1 = Math.sin(originalAngle1);
-        const origX2 = Math.cos(originalAngle2);
-        const origY2 = Math.sin(originalAngle2);
+        // Safety check
+        if (!p1 || !p2) {
+          return [x, y];
+        }
 
         // Interpolate target positions
         const targetX = p1.x * (1 - t) + p2.x * t;
         const targetY = p1.y * (1 - t) + p2.y * t;
 
-        // Calculate the radius at this point based on actual distance from center
-        const targetRadius = Math.sqrt(targetX * targetX + targetY * targetY);
-
         // Scale by the actual vertex radius
-        const scale = targetRadius / 1.0; // Normalize to unit circle
-
         return [targetX * radius, targetY * radius];
       }
     };
