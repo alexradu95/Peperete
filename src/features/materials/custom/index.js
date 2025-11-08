@@ -9,4 +9,4 @@ import './CustomShaderMaterial.jsx';
 
 // Re-export
 export { CustomShaderMaterial } from './CustomShaderMaterial.jsx';
-export { default as shaderTemplates, getTemplate } from './shaderTemplates.js';
+export { getTemplate, getAllTemplates } from './shaderTemplates.js';
