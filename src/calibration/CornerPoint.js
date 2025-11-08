@@ -124,8 +124,11 @@ export class CornerPoint {
     if (canvas) {
       const rect = canvas.getBoundingClientRect();
       // Position relative to canvas, not window
-      this.element.style.left = `${rect.left + this.position.x}px`;
-      this.element.style.top = `${rect.top + this.position.y}px`;
+      const displayX = rect.left + this.position.x;
+      const displayY = rect.top + this.position.y;
+
+      this.element.style.left = `${displayX}px`;
+      this.element.style.top = `${displayY}px`;
     } else {
       this.element.style.left = `${this.position.x}px`;
       this.element.style.top = `${this.position.y}px`;

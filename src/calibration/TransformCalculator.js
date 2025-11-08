@@ -75,11 +75,19 @@ export class TransformCalculator {
   }
 
   /**
-   * Normalize X coordinate to -1 to 1 range
+   * Normalize X coordinate to -1 to 1 range (accounting for aspect ratio)
+   * The orthographic camera uses aspect ratio, so the plane only fills the vertical dimension
+   * We need to scale X coordinates to match this
    */
   static normalizeX(x) {
     const dims = this.getCanvasDimensions();
-    return (x / dims.width) * 2 - 1;
+    const aspect = dims.width / dims.height;
+
+    // The camera frustum is from -aspect to +aspect in X
+    // But we want to map canvas pixels (0 to width) to this range
+    // First normalize to 0-1, then scale to match aspect ratio
+    const normalized = x / dims.width;  // 0 to 1
+    return (normalized * 2 - 1) * aspect;  // -aspect to +aspect
   }
 
   /**
@@ -87,6 +95,7 @@ export class TransformCalculator {
    */
   static normalizeY(y) {
     const dims = this.getCanvasDimensions();
+    // Y goes from -1 to 1 (fills full height)
     return -((y / dims.height) * 2 - 1);
   }
 
