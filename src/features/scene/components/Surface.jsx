@@ -1,5 +1,5 @@
-import React, { useRef, useEffect, useMemo } from 'react';
-import { useFrame, useLoader } from '@react-three/fiber';
+import React, { useRef, useEffect, useMemo, useState } from 'react';
+import { useFrame, useLoader, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { TransformCalculator } from '../../calibration/utils/TransformCalculator';
 import { useContentManager, getColorValue } from '../hooks/useContentManager';
@@ -15,6 +15,7 @@ export function Surface({ surface }) {
   const meshRef = useRef();
   const materialRef = useRef();
   const { createCheckerboardTexture, createGridTexture } = useContentManager();
+  const { size } = useThree();
 
   // Create geometry with subdivisions for perspective transformation
   const geometry = useMemo(() => {
@@ -22,12 +23,12 @@ export function Surface({ surface }) {
     return geom;
   }, []);
 
-  // Apply perspective transformation to geometry when corners change
+  // Apply perspective transformation to geometry when corners change OR window resizes
   useEffect(() => {
     if (meshRef.current && surface.corners) {
       TransformCalculator.applyTransformToGeometry(geometry, surface.corners);
     }
-  }, [surface.corners, geometry]);
+  }, [surface.corners, geometry, size.width, size.height]);
 
   // Create material based on content type
   const materialProps = useMemo(() => {

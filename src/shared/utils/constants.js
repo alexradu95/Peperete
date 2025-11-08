@@ -19,14 +19,44 @@ export const CONTENT_TYPES = {
   IMAGE: 'image'
 };
 
+/**
+ * Get default corners based on current window size
+ * Places corners in the center with some margin
+ */
+export function getDefaultCorners() {
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+
+  // Calculate center area with margin
+  const margin = Math.min(width, height) * 0.15; // 15% margin
+  const centerWidth = width * 0.5;
+  const centerHeight = height * 0.5;
+
+  const centerX = width / 2;
+  const centerY = height / 2;
+
+  return {
+    topLeft: {
+      x: centerX - centerWidth / 2,
+      y: centerY - centerHeight / 2
+    },
+    topRight: {
+      x: centerX + centerWidth / 2,
+      y: centerY - centerHeight / 2
+    },
+    bottomLeft: {
+      x: centerX - centerWidth / 2,
+      y: centerY + centerHeight / 2
+    },
+    bottomRight: {
+      x: centerX + centerWidth / 2,
+      y: centerY + centerHeight / 2
+    }
+  };
+}
+
 export const DEFAULT_SURFACE_CONFIG = {
   name: 'Surface',
-  corners: {
-    topLeft: { x: 0.25, y: 0.75 },
-    topRight: { x: 0.75, y: 0.75 },
-    bottomLeft: { x: 0.25, y: 0.25 },
-    bottomRight: { x: 0.75, y: 0.25 }
-  },
   contentType: CONTENT_TYPES.CHECKERBOARD,
   visible: true,
   renderOrder: 0

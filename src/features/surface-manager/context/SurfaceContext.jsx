@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
-import { DEFAULT_SURFACE_CONFIG, STORAGE_KEYS } from '../../../shared/utils/constants';
+import { DEFAULT_SURFACE_CONFIG, STORAGE_KEYS, getDefaultCorners } from '../../../shared/utils/constants';
 import { useStorage } from '../../../shared/hooks/useStorage';
 
 /**
@@ -17,6 +17,10 @@ export function SurfaceProvider({ children }) {
   const [surfaces, setSurfaces] = useState(() => {
     const map = new Map();
     storedSurfaces.forEach(surface => {
+      // Ensure loaded surfaces have valid corners
+      if (!surface.corners || !surface.corners.topLeft) {
+        surface.corners = getDefaultCorners();
+      }
       map.set(surface.id, surface);
     });
     return map;
@@ -37,6 +41,7 @@ export function SurfaceProvider({ children }) {
     const newSurface = {
       id,
       ...DEFAULT_SURFACE_CONFIG,
+      corners: getDefaultCorners(), // Get default corners based on current window size
       ...config,
       name: config.name || `Surface ${nextIdRef.current - 1}`
     };
