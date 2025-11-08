@@ -12,6 +12,7 @@ export const CONTENT_TYPES = {
   GRID: 'grid',
   ANIMATED_GRADIENT: 'animated-gradient',
   ROTATING_COLORS: 'rotating-colors',
+  CUSTOM_SHADER: 'custom-shader',
   WHITE: 'white',
   RED: 'red',
   GREEN: 'green',

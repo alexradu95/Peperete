@@ -7,6 +7,7 @@ import { CONTENT_TYPES, GEOMETRY_SUBDIVISIONS, GEOMETRY_TYPES } from '../../../s
 import { GeometryGenerator } from '../utils/GeometryGenerator';
 import AnimatedGradientShaderMaterial from '../materials/AnimatedGradientMaterial';
 import RotatingColorsShaderMaterial from '../materials/RotatingColorsMaterial';
+import { CustomShaderMaterial } from '../materials/CustomShaderMaterial';
 
 /**
  * Surface Component
@@ -90,6 +91,15 @@ export function Surface({ surface }) {
           props: baseProps
         };
 
+      case CONTENT_TYPES.CUSTOM_SHADER:
+        return {
+          type: 'customShader',
+          props: {
+            ...baseProps,
+            shaderData: surface.contentData?.shaderData
+          }
+        };
+
       case CONTENT_TYPES.IMAGE:
         return {
           type: 'image',
@@ -133,6 +143,13 @@ export function Surface({ surface }) {
       )}
       {materialProps.type === 'rotatingColors' && (
         <rotatingColorsShaderMaterial ref={materialRef} {...materialProps.props} />
+      )}
+      {materialProps.type === 'customShader' && materialProps.props.shaderData && (
+        <CustomShaderMaterial
+          vertexShader={materialProps.props.shaderData.vertexShader}
+          fragmentShader={materialProps.props.shaderData.fragmentShader}
+          uniforms={materialProps.props.shaderData.uniforms || {}}
+        />
       )}
       {materialProps.type === 'meshBasicMaterial' && (
         <meshBasicMaterial {...materialProps.props} />
