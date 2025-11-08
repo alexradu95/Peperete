@@ -111,9 +111,15 @@ export class TransformCalculator {
 
     const numPoints = normalizedCorners.length;
 
+    // Calculate the geometric center (centroid) of the corners
+    const center = {
+      x: normalizedCorners.reduce((sum, p) => sum + p.x, 0) / numPoints,
+      y: normalizedCorners.reduce((sum, p) => sum + p.y, 0) / numPoints
+    };
+
     return {
       transform: (x, y) => {
-        // For polygon/circle, use radial interpolation
+        // For polygon/circle, use radial interpolation from the origin
         const angle = Math.atan2(y, x);
         const radius = Math.sqrt(x * x + y * y);
 
@@ -139,12 +145,33 @@ export class TransformCalculator {
           return [x, y];
         }
 
-        // Interpolate target positions
-        const targetX = p1.x * (1 - t) + p2.x * t;
-        const targetY = p1.y * (1 - t) + p2.y * t;
+        // Interpolate target positions on the edge
+        const edgeX = p1.x * (1 - t) + p2.x * t;
+        const edgeY = p1.y * (1 - t) + p2.y * t;
 
-        // Scale by the actual vertex radius
-        return [targetX * radius, targetY * radius];
+        // Calculate the distance from center to the edge point
+        const edgeRadius = Math.sqrt(
+          (edgeX - center.x) * (edgeX - center.x) +
+          (edgeY - center.y) * (edgeY - center.y)
+        );
+
+        // Scale the radius to map from original to edge distance
+        // If radius is 0 (center point), return the center
+        if (radius === 0) {
+          return [center.x, center.y];
+        }
+
+        // Calculate the direction from center to edge
+        const dirX = (edgeX - center.x) / edgeRadius;
+        const dirY = (edgeY - center.y) / edgeRadius;
+
+        // Scale by the vertex's original radius to maintain relative position
+        const scaledRadius = radius * edgeRadius;
+
+        return [
+          center.x + dirX * scaledRadius,
+          center.y + dirY * scaledRadius
+        ];
       }
     };
   }
