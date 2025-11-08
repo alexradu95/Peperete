@@ -19,7 +19,7 @@ export function SurfaceProvider({ children }) {
     storedSurfaces.forEach(surface => {
       // Ensure loaded surfaces have valid corners and geometry type
       if (!surface.geometryType) {
-        surface.geometryType = GEOMETRY_TYPES.RECTANGLE;
+        surface.geometryType = GEOMETRY_TYPES.POLYGON;
       }
       if (!surface.cornerCount) {
         surface.cornerCount = 4;

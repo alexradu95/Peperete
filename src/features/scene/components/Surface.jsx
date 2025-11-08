@@ -21,7 +21,7 @@ export function Surface({ surface }) {
   // Create geometry based on geometry type
   const geometry = useMemo(() => {
     const geom = GeometryGenerator.createGeometry(
-      surface.geometryType || GEOMETRY_TYPES.RECTANGLE,
+      surface.geometryType || GEOMETRY_TYPES.POLYGON,
       surface.cornerCount || 4,
       GEOMETRY_SUBDIVISIONS
     );
@@ -34,7 +34,7 @@ export function Surface({ surface }) {
       TransformCalculator.applyTransformToGeometry(
         geometry,
         surface.corners,
-        surface.geometryType || GEOMETRY_TYPES.RECTANGLE
+        surface.geometryType || GEOMETRY_TYPES.POLYGON
       );
     }
   }, [surface.corners, geometry, surface.geometryType, size.width, size.height]);

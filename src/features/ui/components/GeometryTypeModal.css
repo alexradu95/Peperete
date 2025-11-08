@@ -89,49 +89,25 @@
   font-size: 14px;
 }
 
-.geometry-types {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-.geometry-type-card {
-  background: #333;
-  border: 2px solid transparent;
-  border-radius: 8px;
-  padding: 20px;
+.shape-preview {
   text-align: center;
-  cursor: pointer;
-  transition: all 0.2s;
+  padding: 30px;
+  margin: 20px 0;
+  background: #333;
+  border-radius: 8px;
+  border: 2px solid #4a9eff;
 }
 
-.geometry-type-card:hover {
-  background: #3a3a3a;
-  border-color: #555;
-}
-
-.geometry-type-card.selected {
-  background: #2a4a5a;
-  border-color: #4a9eff;
-}
-
-.geometry-icon {
-  font-size: 48px;
-  margin-bottom: 12px;
+.shape-name {
+  font-size: 24px;
+  font-weight: 600;
   color: #4a9eff;
+  margin-bottom: 8px;
 }
 
-.geometry-type-card h3 {
-  margin: 0 0 8px 0;
+.corner-count-display {
   font-size: 16px;
-  color: #fff;
-}
-
-.geometry-type-card p {
-  margin: 0;
-  font-size: 12px;
-  color: #999;
+  color: #ccc;
 }
 
 .custom-options {
