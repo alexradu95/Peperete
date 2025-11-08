@@ -14,6 +14,7 @@ export function AppProvider({ children }) {
   const [mode, setModeInternal] = useState(APP_MODES.CALIBRATION);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [notification, setNotification] = useState(null);
+  const [isSidebarVisible, setIsSidebarVisible] = useState(true);
 
   // Wrapper to broadcast mode changes
   const setMode = useCallback((newMode) => {
@@ -43,6 +44,10 @@ export function AppProvider({ children }) {
     setTimeout(() => setNotification(null), duration);
   }, []);
 
+  const toggleSidebar = useCallback(() => {
+    setIsSidebarVisible(prev => !prev);
+  }, []);
+
   // Listen for broadcasts from other tabs
   useEffect(() => {
     const unsubscribeMode = broadcastManager.subscribe(
@@ -64,7 +69,9 @@ export function AppProvider({ children }) {
     isFullscreen,
     toggleFullscreen,
     notification,
-    showNotification
+    showNotification,
+    isSidebarVisible,
+    toggleSidebar
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

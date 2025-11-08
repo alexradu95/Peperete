@@ -21,7 +21,7 @@ export function SurfacePanel() {
     updateSurfaceContent
   } = useSurfaces();
 
-  const { mode, showNotification } = useApp();
+  const { mode, showNotification, isSidebarVisible } = useApp();
   const surfaces = getAllSurfaces();
   const [showGeometryModal, setShowGeometryModal] = useState(false);
 
@@ -89,7 +89,7 @@ export function SurfacePanel() {
         onSelect={handleGeometrySelect}
       />
 
-      <div className="surface-panel">
+      <div className={`surface-panel ${!isSidebarVisible ? 'hidden' : ''}`}>
         <div className="surface-panel-header">
           <h2>Surfaces</h2>
           <div className="header-buttons">
