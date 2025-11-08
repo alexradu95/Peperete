@@ -5,4 +5,4 @@
 
 export { CalibrationMode } from './components/CalibrationMode';
 export { CornerPoint } from './components/CornerPoint';
-export { TransformCalculator } from './utils/TransformCalculator';
+export { TransformCalculator } from '../../core/transformation/TransformCalculator';

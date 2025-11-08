@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSurfaces } from '../../surface-manager/context/SurfaceContext';
 import { useApp } from '../../../shared/context/AppContext';
 import { useAudio } from '../../../shared/context/AudioContext';
-import { CONTENT_TYPES, APP_MODES } from '../../../shared/utils/constants';
+import { CONTENT_TYPES, APP_MODES } from '../../../shared/constants';
 import { GeometryTypeModal } from './GeometryTypeModal';
 import { ShaderEditorPanel } from './ShaderEditorPanel';
 import { getTemplate } from '../../scene/materials/shaderTemplates';

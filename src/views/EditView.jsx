@@ -6,7 +6,7 @@ import { CalibrationMode } from '../features/calibration';
 import { useApp } from '../shared/context/AppContext';
 import { useSurfaces } from '../features/surface-manager';
 import { useKeyboard } from '../shared/hooks/useKeyboard';
-import { KEYBOARD_SHORTCUTS } from '../shared/utils/constants';
+import { KEYBOARD_SHORTCUTS } from '../shared/constants';
 import './EditView.css';
 
 /**

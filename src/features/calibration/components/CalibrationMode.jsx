@@ -2,10 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useDrag } from '@use-gesture/react';
 import { useSurfaces } from '../../surface-manager/context/SurfaceContext';
 import { useApp } from '../../../shared/context/AppContext';
-import { APP_MODES, GEOMETRY_TYPES } from '../../../shared/utils/constants';
+import { APP_MODES, GEOMETRY_TYPES } from '../../../shared/constants';
 import { CornerPoint } from './CornerPoint';
 import { TransformModeSelector } from './TransformModeSelector';
-import { GeometryGenerator } from '../../scene/utils/GeometryGenerator';
+import { GeometryGenerator } from '../../../core/geometry/GeometryGenerator';
 import {
   TRANSFORM_MODES,
   moveSurface,

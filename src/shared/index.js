@@ -10,5 +10,5 @@ export { AppProvider, useApp } from './context/AppContext';
 export { useKeyboard } from './hooks/useKeyboard';
 export { useStorage } from './hooks/useStorage';
 
-// Utils
-export * from './utils/constants';
+// Constants
+export * from './constants';

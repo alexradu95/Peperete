@@ -1,10 +1,10 @@
 import React, { useRef, useEffect, useMemo, useState } from 'react';
 import { useFrame, useLoader, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
-import { TransformCalculator } from '../../calibration/utils/TransformCalculator';
+import { TransformCalculator } from '../../../core/transformation/TransformCalculator';
 import { useContentManager, getColorValue } from '../hooks/useContentManager';
-import { CONTENT_TYPES, GEOMETRY_SUBDIVISIONS, GEOMETRY_TYPES } from '../../../shared/utils/constants';
-import { GeometryGenerator } from '../utils/GeometryGenerator';
+import { CONTENT_TYPES, GEOMETRY_SUBDIVISIONS, GEOMETRY_TYPES } from '../../../shared/constants';
+import { GeometryGenerator } from '../../../core/geometry/GeometryGenerator';
 import { useAudio } from '../../../shared/context/AudioContext';
 import AnimatedGradientShaderMaterial from '../materials/AnimatedGradientMaterial';
 import RotatingColorsShaderMaterial from '../materials/RotatingColorsMaterial';

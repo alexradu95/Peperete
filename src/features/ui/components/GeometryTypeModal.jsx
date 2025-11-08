@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { GEOMETRY_TYPES } from '../../../shared/utils/constants';
+import { GEOMETRY_TYPES } from '../../../shared/constants';
 import './GeometryTypeModal.css';
 
 /**

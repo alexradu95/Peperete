@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
-import { CONTENT_TYPES, GRID_SIZE } from '../../../shared/utils/constants';
+import { CONTENT_TYPES, GRID_SIZE } from '../../../shared/constants';
 
 /**
  * Custom hook for creating materials based on content type

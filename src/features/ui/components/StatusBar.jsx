@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../../../shared/context/AppContext';
-import { APP_MODES } from '../../../shared/utils/constants';
+import { APP_MODES } from '../../../shared/constants';
 import './StatusBar.css';
 
 /**
