@@ -3,49 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Projection Mapping Application</title>
-  <link rel="stylesheet" href="/src/styles/main.css">
-  <link rel="stylesheet" href="/src/styles/calibration.css">
+  <title>Projection Mapping - React Three Fiber</title>
 </head>
 <body>
-  <div id="app">
-    <div id="canvas-container"></div>
-
-    <!-- Surface Management Panel -->
-    <div id="surface-panel">
-      <h3>Surfaces</h3>
-      <div id="surface-list"></div>
-      <div class="surface-actions">
-        <button id="add-surface-btn" title="Add New Surface">+ Add Surface</button>
-      </div>
-    </div>
-
-    <!-- Calibration UI Overlay -->
-    <div id="calibration-overlay" class="hidden">
-      <div class="instructions">
-        <h2>CALIBRATION MODE</h2>
-        <p>Drag corners to align with projection surface</p>
-        <div class="current-surface-name" id="current-surface-name"></div>
-        <div class="shortcuts">
-          <kbd>C</kbd> Toggle Calibration |
-          <kbd>F</kbd> Fullscreen |
-          <kbd>S</kbd> Save |
-          <kbd>L</kbd> Load |
-          <kbd>R</kbd> Reset |
-          <kbd>[</kbd> Back |
-          <kbd>]</kbd> Forward |
-          <kbd>ESC</kbd> Exit
-        </div>
-      </div>
-
-      <!-- Corner Points (will be created dynamically) -->
-      <div id="corner-points"></div>
-    </div>
-
-    <!-- Status Indicator -->
-    <div id="status-indicator"></div>
-  </div>
-
-  <script type="module" src="/src/main.js"></script>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
 </body>
 </html>

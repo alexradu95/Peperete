@@ -1,0 +1,178 @@
+import React, { useState } from 'react';
+import { useSurfaces } from '../../surface-manager/context/SurfaceContext';
+import { useApp } from '../../../shared/context/AppContext';
+import { CONTENT_TYPES, APP_MODES } from '../../../shared/utils/constants';
+import './SurfacePanel.css';
+
+/**
+ * Surface Panel Component
+ * Left sidebar for managing surfaces
+ */
+export function SurfacePanel() {
+  const {
+    getAllSurfaces,
+    selectedSurfaceId,
+    setSelectedSurfaceId,
+    addSurface,
+    removeSurface,
+    updateSurface,
+    toggleSurfaceVisibility,
+    updateSurfaceContent
+  } = useSurfaces();
+
+  const { mode, showNotification } = useApp();
+  const surfaces = getAllSurfaces();
+
+  const handleAddSurface = () => {
+    const id = addSurface();
+    showNotification('Surface added');
+  };
+
+  const handleRemoveSurface = (id) => {
+    if (window.confirm('Are you sure you want to delete this surface?')) {
+      removeSurface(id);
+      showNotification('Surface removed');
+    }
+  };
+
+  const handleSelectSurface = (id) => {
+    setSelectedSurfaceId(id);
+  };
+
+  const handleToggleVisibility = (id, e) => {
+    e.stopPropagation();
+    toggleSurfaceVisibility(id);
+  };
+
+  const handleNameChange = (id, name) => {
+    updateSurface(id, { name });
+  };
+
+  const handleContentTypeChange = (id, contentType) => {
+    updateSurfaceContent(id, contentType);
+  };
+
+  const handleRenderOrderChange = (id, renderOrder) => {
+    updateSurface(id, { renderOrder: parseInt(renderOrder) });
+  };
+
+  const handleImageUpload = (id, e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        updateSurfaceContent(id, CONTENT_TYPES.IMAGE, { imageUrl: event.target.result });
+        showNotification('Image loaded');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  return (
+    <div className="surface-panel">
+      <div className="surface-panel-header">
+        <h2>Surfaces</h2>
+        <button className="btn-add" onClick={handleAddSurface}>
+          + Add Surface
+        </button>
+      </div>
+
+      <div className="surface-list">
+        {surfaces.length === 0 ? (
+          <div className="empty-state">
+            <p>No surfaces yet</p>
+            <p className="help-text">Click "Add Surface" to create one</p>
+          </div>
+        ) : (
+          surfaces.map(surface => (
+            <div
+              key={surface.id}
+              className={`surface-item ${selectedSurfaceId === surface.id ? 'selected' : ''} ${!surface.visible ? 'hidden' : ''}`}
+              onClick={() => handleSelectSurface(surface.id)}
+            >
+              <div className="surface-item-header">
+                <input
+                  type="text"
+                  className="surface-name"
+                  value={surface.name}
+                  onChange={(e) => handleNameChange(surface.id, e.target.value)}
+                  onClick={(e) => e.stopPropagation()}
+                />
+                <div className="surface-controls">
+                  <button
+                    className={`btn-visibility ${surface.visible ? 'visible' : 'hidden'}`}
+                    onClick={(e) => handleToggleVisibility(surface.id, e)}
+                    title={surface.visible ? 'Hide' : 'Show'}
+                  >
+                    {surface.visible ? '👁' : '👁‍🗨'}
+                  </button>
+                  <button
+                    className="btn-delete"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveSurface(surface.id);
+                    }}
+                    title="Delete"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+
+              {selectedSurfaceId === surface.id && (
+                <div className="surface-details">
+                  <div className="form-group">
+                    <label>Content Type</label>
+                    <select
+                      value={surface.contentType}
+                      onChange={(e) => handleContentTypeChange(surface.id, e.target.value)}
+                    >
+                      <option value={CONTENT_TYPES.CHECKERBOARD}>Checkerboard</option>
+                      <option value={CONTENT_TYPES.GRID}>Grid with Numbers</option>
+                      <option value={CONTENT_TYPES.ANIMATED_GRADIENT}>Animated Gradient</option>
+                      <option value={CONTENT_TYPES.ROTATING_COLORS}>Rotating Colors</option>
+                      <option value={CONTENT_TYPES.WHITE}>White</option>
+                      <option value={CONTENT_TYPES.RED}>Red</option>
+                      <option value={CONTENT_TYPES.GREEN}>Green</option>
+                      <option value={CONTENT_TYPES.BLUE}>Blue</option>
+                      <option value={CONTENT_TYPES.IMAGE}>Image</option>
+                    </select>
+                  </div>
+
+                  {surface.contentType === CONTENT_TYPES.IMAGE && (
+                    <div className="form-group">
+                      <label>Upload Image</label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleImageUpload(surface.id, e)}
+                      />
+                    </div>
+                  )}
+
+                  <div className="form-group">
+                    <label>Render Order (Z-Index)</label>
+                    <input
+                      type="number"
+                      value={surface.renderOrder || 0}
+                      onChange={(e) => handleRenderOrderChange(surface.id, e.target.value)}
+                      min="0"
+                      max="100"
+                    />
+                    <small>Higher values render on top</small>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))
+        )}
+      </div>
+
+      <div className="surface-panel-footer">
+        <div className="surface-count">
+          {surfaces.length} surface{surfaces.length !== 1 ? 's' : ''}
+        </div>
+      </div>
+    </div>
+  );
+}

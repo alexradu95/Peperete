@@ -1,238 +1,382 @@
-# Multi-Surface Projection Mapping Application
+# Projection Mapping - React Three Fiber
 
-A web-based projection mapping application built with Three.js that allows you to project visual content onto **multiple** square/rectangular architectural surfaces using manual corner-pinning calibration. Each surface can have its own texture/content and independent calibration.
+A modular projection mapping application built with React Three Fiber, designed for parallel development by multiple teams.
 
-## Features
+## Architecture Overview
 
-- **Multiple Surfaces**: Create, manage, and calibrate multiple projection surfaces simultaneously
-- **Per-Surface Content**: Assign different textures/animations to each surface independently
-- **Z-Axis Priority Control**: Control rendering order when surfaces overlap
-- **Manual Corner-Pinning Calibration**: Drag 4 corner points to align each surface with physical architecture
-- **Real-time Perspective Transformation**: Uses bilinear interpolation for accurate warping
-- **Surface Management UI**: Interactive panel to add, remove, select, and configure surfaces
-- **Multiple Content Types**: Test patterns, animated gradients, solid colors, images, and more
-- **Calibration Persistence**: Save and load all surfaces and their calibrations using localStorage
-- **Fullscreen Support**: Project directly to external displays/projectors
-- **GUI Controls**: Fine-tune corner positions with lil-gui controls
-- **Keyboard Shortcuts**: Quick access to all features
+This application follows a **feature-based modular architecture** that allows multiple developers to work independently on different features without conflicts.
 
-## Installation
+### Technology Stack
 
-```bash
-# Install dependencies
-npm install
-
-# Run development server
-npm run dev
-
-# Build for production
-npm run build
-```
-
-## Usage
-
-### Getting Started
-
-1. Open the application in your browser (http://localhost:3000)
-2. You'll see the **Surfaces panel** on the left with one default surface
-3. Click **"+ Add Surface"** to create additional projection surfaces
-4. Click on a surface in the panel to select it
-5. Press **C** to enter calibration mode
-6. Drag the corner points (TL, TR, BL, BR) to align with your physical projection surface
-7. Press **S** to save all surface calibrations
-8. Press **C** again to return to playback mode
-
-### Managing Multiple Surfaces
-
-Each surface can be configured independently:
-
-- **Select a surface**: Click on it in the Surfaces panel
-- **Add a surface**: Click the "+ Add Surface" button
-- **Toggle visibility**: Click the eye icon (👁/🚫) to show/hide a surface
-- **Adjust render priority**: Click ▲ to move forward (render on top), ▼ to move backward
-- **Change content**: Click the palette icon (🎨) to select content for that surface
-- **Delete a surface**: Click the trash icon (🗑) to remove it
-- **Calibrate**: Select a surface and press C to adjust its corner points
-
-### Keyboard Shortcuts
-
-| Key | Action |
-|-----|--------|
-| `C` | Toggle Calibration Mode |
-| `F` | Toggle Fullscreen |
-| `S` | Save All Surfaces |
-| `L` | Load Surfaces |
-| `R` | Reset Current Surface |
-| `[` | Move Surface Backward (Lower Priority) |
-| `]` | Move Surface Forward (Higher Priority) |
-| `ESC` | Exit Fullscreen/Calibration |
-
-### Console Commands
-
-The application exposes an `app` object to the browser console for advanced control:
-
-```javascript
-// Add a new surface
-app.addSurface("My Wall")
-app.addSurface("Floor Projection")
-
-// Remove a surface (use ID from Surfaces panel)
-app.removeSurface(1)
-
-// Select a surface for calibration
-app.selectSurface(2)
-
-// Load content for a specific surface
-app.loadContentForSurface(1, "checkerboard")
-app.loadContentForSurface(2, "animated-gradient")
-app.loadContentForSurface(3, "grid")
-
-// Load content for currently selected surface
-app.loadContent("rotating-colors")
-app.loadContent("white")
-app.loadContent("red")
-app.loadContent("image", {url: "path/to/image.jpg"})
-
-// Get all surfaces
-app.surfaceManager.getAllSurfaces()
-
-// Toggle surface visibility programmatically
-app.surfaceManager.toggleSurfaceVisibility(1)
-```
-
-## Calibration Tips
-
-1. **Use the Grid Pattern**: The numbered grid pattern is ideal for initial calibration as it clearly shows distortion
-2. **Start with Corners**: Align the red corner markers (TL, TR, BL, BR) first
-3. **Fine-tune with GUI**: Use the lil-gui panel for precise adjustments
-4. **Test with Different Content**: After calibration, try different content types to verify alignment
-5. **Save Your Work**: Always save calibration after making changes (saves ALL surfaces)
-6. **Work One Surface at a Time**: Select a surface, calibrate it, then move to the next
-7. **Hide Surfaces**: Toggle visibility to focus on calibrating one surface without interference
-8. **Different Content Per Surface**: Assign different textures to easily identify each surface
-9. **Adjust Z-Priority**: Use `[` and `]` keys or ▲▼ buttons to control which surface renders on top when they overlap
-
-## Multi-Surface Use Cases
-
-- **Multiple Walls**: Project different content on different walls simultaneously
-- **Floor + Wall**: Combine floor projections with wall projections
-- **Architectural Features**: Map individual surfaces like columns, arches, or panels
-- **Interactive Installations**: Create multi-zone interactive experiences
-- **Video Walls**: Combine multiple projection quads for a larger canvas
+- **React** - UI framework
+- **React Three Fiber** - React renderer for Three.js
+- **@react-three/drei** - Useful helpers for R3F
+- **@use-gesture/react** - Gesture handling for calibration
+- **Three.js** - 3D graphics library
+- **lil-gui** - Calibration controls
+- **Vite** - Build tool
 
 ## Project Structure
 
 ```
-projection-mapping/
-├── src/
-│   ├── main.js                 # Application entry point
-│   ├── app.js                  # Main application controller
-│   ├── calibration/
-│   │   ├── CalibrationManager.js    # Calibration mode logic (multi-surface)
-│   │   ├── CornerPoint.js           # Corner point drag handler
-│   │   └── TransformCalculator.js   # Bilinear interpolation calculations
-│   ├── renderer/
-│   │   ├── SceneManager.js          # Three.js scene setup
-│   │   ├── SurfaceManager.js        # Manages multiple surfaces
-│   │   ├── Surface.js               # Individual surface class
-│   │   └── ContentManager.js        # Content/material creation
+src/
+├── features/                       # Feature modules (isolated, parallel-dev friendly)
+│   ├── scene/                     # 3D Scene feature
+│   │   ├── components/
+│   │   │   ├── Scene.jsx          # Main R3F canvas
+│   │   │   └── Surface.jsx        # Individual surface component
+│   │   ├── hooks/
+│   │   │   └── useContentManager.js # Material creation
+│   │   ├── materials/
+│   │   │   ├── AnimatedGradientMaterial.jsx
+│   │   │   └── RotatingColorsMaterial.jsx
+│   │   └── index.js               # Public API
+│   │
+│   ├── surface-manager/           # Surface state management
+│   │   ├── context/
+│   │   │   └── SurfaceContext.jsx # Global surface state
+│   │   └── index.js
+│   │
+│   ├── calibration/               # Calibration feature
+│   │   ├── components/
+│   │   │   ├── CalibrationMode.jsx
+│   │   │   └── CornerPoint.jsx    # Draggable corners
+│   │   ├── utils/
+│   │   │   └── TransformCalculator.js # Perspective math
+│   │   └── index.js
+│   │
+│   └── ui/                        # UI components
+│       ├── components/
+│       │   ├── SurfacePanel.jsx   # Left sidebar
+│       │   ├── StatusBar.jsx      # Bottom bar
+│       │   └── Notification.jsx   # Toast notifications
+│       └── index.js
+│
+├── shared/                        # Shared utilities
+│   ├── context/
+│   │   └── AppContext.jsx         # Global app state
+│   ├── hooks/
+│   │   ├── useKeyboard.js         # Keyboard shortcuts
+│   │   └── useStorage.js          # localStorage persistence
 │   ├── utils/
-│   │   ├── StorageManager.js        # localStorage operations
-│   │   ├── KeyboardHandler.js       # Keyboard shortcuts
-│   │   └── SurfaceUI.js             # Surface management UI
-│   └── styles/
-│       ├── main.css                 # Global styles + surface panel
-│       └── calibration.css          # Calibration UI styles
-├── public/
-│   └── assets/                 # Textures, videos, models
-├── index.html
-├── package.json
-└── vite.config.js
+│   │   └── constants.js           # App constants
+│   └── index.js
+│
+├── App.jsx                        # Main app component
+└── main.jsx                       # React entry point
 ```
 
-## Technical Details
+## Feature Modules
 
-### Dependencies
+Each feature module is **self-contained** with:
+- ✅ Components (UI/3D)
+- ✅ Hooks (business logic)
+- ✅ Utils (helpers)
+- ✅ Context (if needed)
+- ✅ Barrel export (`index.js`) for clean imports
 
-- **Three.js** (r160+): 3D rendering engine
-- **Vite**: Build tool and dev server
-- **perspective-transform**: Homography matrix calculations
-- **lil-gui**: GUI controls for calibration
+### Example: Using a Feature Module
 
-### Camera Setup
-
-The application uses an orthographic camera for 2D projection output, ensuring no additional perspective distortion.
-
-### Transformation Pipeline
-
-1. User drags corner points in calibration mode
-2. TransformCalculator computes homography matrix using perspective-transform library
-3. Matrix is applied to projection quad vertices (20x20 subdivisions)
-4. Three.js renders the transformed geometry
-
-### Calibration Storage
-
-Calibration data is stored in localStorage with the following schema:
-
-```javascript
-{
-  timestamp: "2025-11-08T...",
-  corners: {
-    topLeft: {x, y},
-    topRight: {x, y},
-    bottomLeft: {x, y},
-    bottomRight: {x, y}
-  },
-  resolution: {width, height}
-}
+```jsx
+// Import from feature module's public API
+import { Scene, Surface } from './features/scene';
+import { CalibrationMode } from './features/calibration';
+import { SurfacePanel } from './features/ui';
 ```
 
-## Browser Compatibility
+## Developing in Parallel
 
-- Chrome 90+
-- Firefox 88+
-- Edge 90+
-- Safari 14+ (limited fullscreen API support)
+### Team Assignment Examples
 
-Requires:
-- WebGL 2.0
-- Fullscreen API
-- LocalStorage
-- ES6 Modules
+**Team A - Scene Rendering:**
+- Work in `src/features/scene/`
+- Add new materials, shaders, effects
+- No conflicts with other teams
 
-## Development
+**Team B - Calibration:**
+- Work in `src/features/calibration/`
+- Improve corner dragging, add presets
+- Independent development
 
-### Adding New Content Types
+**Team C - UI/UX:**
+- Work in `src/features/ui/`
+- Add new panels, improve styling
+- Isolated CSS files
 
-To add a new content type, extend the `ContentManager` class:
+**Team D - Surface Management:**
+- Work in `src/features/surface-manager/`
+- Add grouping, templates, export/import
+- State management isolated
 
-```javascript
-// In ContentManager.js
-loadMyCustomContent() {
-  const material = new THREE.MeshBasicMaterial({...});
-  this.projectionQuad.material = material;
-  this.currentContent = 'my-custom-content';
-}
+### Best Practices for Parallel Development
+
+1. **Feature Branches**: Each team works on their own feature module
+   ```bash
+   git checkout -b feature/scene-improvements
+   git checkout -b feature/calibration-presets
+   ```
+
+2. **Barrel Exports**: Only export what's needed via `index.js`
+   ```js
+   // features/scene/index.js
+   export { Scene } from './components/Scene';
+   export { Surface } from './components/Surface';
+   // Don't export internal helpers
+   ```
+
+3. **Shared Constants**: Use `src/shared/utils/constants.js` for shared values
+   ```js
+   import { CONTENT_TYPES } from '../../../shared/utils/constants';
+   ```
+
+4. **Component Composition**: Build small, reusable components
+   ```jsx
+   // Good - small, focused
+   function CornerPoint({ position, onDrag }) { ... }
+
+   // Avoid - large, monolithic
+   function CalibrationSystemWithEverything() { ... }
+   ```
+
+5. **CSS Modules**: Each component has its own CSS file
+   ```
+   SurfacePanel.jsx
+   SurfacePanel.css  ← Scoped styles
+   ```
+
+## Getting Started
+
+### Installation
+
+```bash
+npm install
 ```
 
-Then load it via:
-```javascript
-app.loadContent("my-custom-content")
+### Development
+
+```bash
+npm run dev
 ```
 
-### Debugging
+Visit `http://localhost:3000`
 
-- Open browser console to see initialization logs
-- Corner positions are logged during calibration
-- Use `app` object for runtime inspection
-- GUI panel shows exact corner coordinates
+### Build
 
-## Performance
+```bash
+npm run build
+```
 
-- Target: 60 FPS
-- Optimized vertex updates during calibration
-- Efficient render loop with requestAnimationFrame
-- Geometry updates only when corners move
+Output in `dist/` folder.
+
+## Features
+
+### Surface Management
+- Add/remove multiple projection surfaces
+- Configure content type (checkerboard, grid, colors, gradients, images)
+- Adjust render order (z-index)
+- Toggle visibility
+
+### Calibration Mode
+- Drag corner points to align with physical projection surface
+- Fine-tune with lil-gui controls
+- Perspective transformation using bilinear interpolation
+- Real-time preview
+
+### Playback Mode
+- Clean projection output
+- No UI overlays
+- Fullscreen support
+
+### Content Types
+- ✅ Checkerboard pattern
+- ✅ Grid with numbers
+- ✅ Animated gradient (GLSL shader)
+- ✅ Rotating colors (GLSL shader)
+- ✅ Solid colors (white, red, green, blue)
+- ✅ Custom images
+
+### Keyboard Shortcuts
+- `Space` - Toggle calibration/playback mode
+- `F` - Toggle fullscreen
+- `A` - Add new surface
+- `Delete` - Remove selected surface
+
+## Adding New Features
+
+### Example: Add a New Material Type
+
+1. **Create the material shader**:
+   ```jsx
+   // src/features/scene/materials/WaveMaterial.jsx
+   import { shaderMaterial } from '@react-three/drei';
+
+   const WaveShaderMaterial = shaderMaterial(
+     { time: 0 },
+     /* vertex shader */,
+     /* fragment shader */
+   );
+
+   export default WaveShaderMaterial;
+   ```
+
+2. **Update constants**:
+   ```js
+   // src/shared/utils/constants.js
+   export const CONTENT_TYPES = {
+     // ... existing
+     WAVE: 'wave'
+   };
+   ```
+
+3. **Add to Surface component**:
+   ```jsx
+   // src/features/scene/components/Surface.jsx
+   case CONTENT_TYPES.WAVE:
+     return { type: 'wave', props: baseProps };
+   ```
+
+4. **Update UI**:
+   ```jsx
+   // src/features/ui/components/SurfacePanel.jsx
+   <option value={CONTENT_TYPES.WAVE}>Wave Pattern</option>
+   ```
+
+### Example: Add a New Calibration Tool
+
+1. **Create component**:
+   ```jsx
+   // src/features/calibration/components/GridOverlay.jsx
+   export function GridOverlay() { ... }
+   ```
+
+2. **Use in CalibrationMode**:
+   ```jsx
+   // src/features/calibration/components/CalibrationMode.jsx
+   import { GridOverlay } from './GridOverlay';
+
+   // In render:
+   <GridOverlay />
+   ```
+
+3. **Export from feature module**:
+   ```js
+   // src/features/calibration/index.js
+   export { GridOverlay } from './components/GridOverlay';
+   ```
+
+## State Management
+
+### Global State (Context API)
+
+**App State** (`AppContext`):
+- Current mode (calibration/playback)
+- Fullscreen state
+- Notifications
+
+**Surface State** (`SurfaceContext`):
+- All surfaces
+- Selected surface
+- CRUD operations
+- Persists to localStorage
+
+### Local State (Component State)
+
+Each component manages its own UI state (form inputs, hover states, etc.)
+
+## Performance Optimization
+
+### React.memo for Components
+```jsx
+export const Surface = React.memo(({ surface }) => {
+  // Component only re-renders if surface prop changes
+});
+```
+
+### useMemo for Expensive Calculations
+```jsx
+const texture = useMemo(() => {
+  return createComplexTexture();
+}, [dependencies]);
+```
+
+### useFrame for Animations
+```jsx
+useFrame((state, delta) => {
+  materialRef.current.uniforms.time.value += delta;
+});
+```
+
+## Testing Strategy
+
+### Component Testing
+```bash
+npm install --save-dev vitest @testing-library/react
+```
+
+Example test:
+```jsx
+import { render } from '@testing-library/react';
+import { SurfacePanel } from './SurfacePanel';
+
+test('renders surface panel', () => {
+  const { getByText } = render(<SurfacePanel />);
+  expect(getByText('Surfaces')).toBeInTheDocument();
+});
+```
+
+## Migration Summary
+
+### What Changed
+
+| Before | After |
+|--------|-------|
+| Vanilla JS classes | React components |
+| Manual DOM manipulation | Declarative JSX |
+| Three.js direct API | React Three Fiber |
+| Global event listeners | React hooks |
+| Monolithic files | Feature modules |
+
+### Lines of Code
+
+- **Before**: ~1,936 LOC (vanilla JS)
+- **After**: ~2,500+ LOC (React + modular structure)
+- **Benefit**: Better organization, easier testing, parallel development
+
+## Troubleshooting
+
+### Build Warnings
+The build may show warnings about chunk size. This is normal and can be optimized later with code splitting:
+
+```js
+// vite.config.js
+export default {
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'three-vendor': ['three', '@react-three/fiber', '@react-three/drei']
+        }
+      }
+    }
+  }
+};
+```
+
+### Hot Reload Issues
+If changes don't reflect, try:
+```bash
+rm -rf node_modules/.vite
+npm run dev
+```
+
+## Contributing
+
+1. Choose a feature module to work on
+2. Create a feature branch
+3. Make changes within your feature module
+4. Test locally
+5. Submit PR with clear description
+6. Minimal conflicts with other teams!
 
 ## License
 
@@ -240,4 +384,4 @@ MIT
 
 ## Credits
 
-Built with [Three.js](https://threejs.org/), [Vite](https://vitejs.dev/), and [lil-gui](https://lil-gui.georgealways.com/).
+Built with [React Three Fiber](https://docs.pmnd.rs/react-three-fiber/), [Three.js](https://threejs.org/), [Vite](https://vitejs.dev/), and [lil-gui](https://lil-gui.georgealways.com/).
