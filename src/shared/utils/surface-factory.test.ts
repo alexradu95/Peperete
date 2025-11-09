@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
 import { createDefaultSurface, createSurfaceWithCorners } from './surface-factory';
-import type { Surface } from '../schemas';
 
 describe('Surface Factory', () => {
   describe('createDefaultSurface', () => {
@@ -37,10 +36,10 @@ describe('Surface Factory', () => {
 
       expect(surface.corners).toBeDefined();
       expect(Object.keys(surface.corners)).toHaveLength(4);
-      expect(surface.corners.point0).toBeDefined();
-      expect(surface.corners.point1).toBeDefined();
-      expect(surface.corners.point2).toBeDefined();
-      expect(surface.corners.point3).toBeDefined();
+      expect(surface.corners['point0']).toBeDefined();
+      expect(surface.corners['point1']).toBeDefined();
+      expect(surface.corners['point2']).toBeDefined();
+      expect(surface.corners['point3']).toBeDefined();
     });
 
     it('should create corners with specified corner count', () => {
@@ -50,15 +49,17 @@ describe('Surface Factory', () => {
       });
 
       expect(Object.keys(surface.corners)).toHaveLength(6);
-      expect(surface.corners.point0).toBeDefined();
-      expect(surface.corners.point5).toBeDefined();
+      expect(surface.corners['point0']).toBeDefined();
+      expect(surface.corners['point5']).toBeDefined();
     });
 
     it('should validate corner positions are numbers', () => {
       const surface = createDefaultSurface({ id: 'test-5' });
+      const point0 = surface.corners['point0'];
 
-      expect(typeof surface.corners.point0.x).toBe('number');
-      expect(typeof surface.corners.point0.y).toBe('number');
+      expect(point0).toBeDefined();
+      expect(typeof point0?.x).toBe('number');
+      expect(typeof point0?.y).toBe('number');
     });
   });
 

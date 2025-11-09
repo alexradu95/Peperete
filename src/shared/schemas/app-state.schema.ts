@@ -49,7 +49,7 @@ export type Corners = z.infer<typeof CornersSchema>;
 // Content Data Schema
 export const ContentDataSchema = z.object({
   imageUrl: z.string().optional(),
-  shaderData: z.record(z.unknown()).optional()
+  shaderData: z.record(z.string(), z.unknown()).optional()
 }).optional();
 export type ContentData = z.infer<typeof ContentDataSchema>;
 

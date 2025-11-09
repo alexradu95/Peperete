@@ -1,11 +1,11 @@
-/**
- * Application-wide constants
- */
+import type { Corners, GeometryType } from '../schemas';
 
 export const APP_MODES = {
   CALIBRATION: 'calibration',
   PLAYBACK: 'playback'
-};
+} as const;
+
+export type AppMode = typeof APP_MODES[keyof typeof APP_MODES];
 
 export const CONTENT_TYPES = {
   CHECKERBOARD: 'checkerboard',
@@ -26,22 +26,22 @@ export const CONTENT_TYPES = {
   GREEN: 'green',
   BLUE: 'blue',
   IMAGE: 'image',
-  // Audio-reactive effects
   AUDIO_WAVES: 'audio-waves',
   AUDIO_PULSE: 'audio-pulse',
   AUDIO_SPECTRUM: 'audio-spectrum',
   AUDIO_BARS: 'audio-bars'
-};
+} as const;
+
+export type ContentType = typeof CONTENT_TYPES[keyof typeof CONTENT_TYPES];
 
 export const GEOMETRY_TYPES = {
   POLYGON: 'polygon'
-};
+} as const;
 
-/**
- * Get default corners based on current window size and geometry type
- * Places corners in the center with some margin
- */
-export function getDefaultCorners(geometryType = GEOMETRY_TYPES.POLYGON, cornerCount = 4) {
+export const getDefaultCorners = (
+  _geometryType: GeometryType = GEOMETRY_TYPES.POLYGON,
+  cornerCount: number = 4
+): Corners => {
   const width = window.innerWidth;
   const height = window.innerHeight;
 
@@ -49,19 +49,18 @@ export function getDefaultCorners(geometryType = GEOMETRY_TYPES.POLYGON, cornerC
   const centerY = height / 2;
   const radius = Math.min(width, height) * 0.25;
 
-  // Clamp corner count between 3 and 8
   const numCorners = Math.min(8, Math.max(3, cornerCount));
 
-  const points = {};
+  const points: Corners = {};
   for (let i = 0; i < numCorners; i++) {
-    const angle = (i / numCorners) * Math.PI * 2 - Math.PI / 2; // Start from top
+    const angle = (i / numCorners) * Math.PI * 2 - Math.PI / 2;
     points[`point${i}`] = {
       x: centerX + Math.cos(angle) * radius,
       y: centerY + Math.sin(angle) * radius
     };
   }
   return points;
-}
+};
 
 export const DEFAULT_SURFACE_CONFIG = {
   name: 'Surface',
@@ -71,7 +70,7 @@ export const DEFAULT_SURFACE_CONFIG = {
   visible: true,
   renderOrder: 0,
   audioReactive: false
-};
+} as const;
 
 export const KEYBOARD_SHORTCUTS = {
   TOGGLE_MODE: ' ',
@@ -79,12 +78,12 @@ export const KEYBOARD_SHORTCUTS = {
   ADD_SURFACE: 'a',
   DELETE_SURFACE: 'Delete',
   TOGGLE_SIDEBAR: 's'
-};
+} as const;
 
 export const STORAGE_KEYS = {
   SURFACES: 'projection_mapping_surfaces',
   APP_STATE: 'projection_mapping_app_state'
-};
+} as const;
 
-export const GRID_SIZE = 8; // 8x8 grid for checkerboard and grid patterns
-export const GEOMETRY_SUBDIVISIONS = 20; // PlaneGeometry subdivisions
+export const GRID_SIZE = 8;
+export const GEOMETRY_SUBDIVISIONS = 20;

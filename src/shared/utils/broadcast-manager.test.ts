@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { MessageTypes } from './broadcastChannel';
+import { MessageTypes } from './broadcast-channel';
 
 // Import BroadcastManager class directly for testing
 const CHANNEL_NAME = 'projection-mapping-sync';
@@ -222,7 +222,7 @@ describe('BroadcastManager', () => {
       manager.handleMessage({ type: MessageTypes.SURFACE_UPDATED, payload });
 
       expect(callback).toHaveBeenCalledWith(payload);
-      expect(callback.mock.calls[0][0]).toEqual(payload);
+      expect(callback.mock.calls[0]?.[0]).toEqual(payload);
     });
   });
 
@@ -235,7 +235,7 @@ describe('BroadcastManager', () => {
       manager.broadcast(MessageTypes.SURFACE_ADDED, payload);
 
       expect(postMessageSpy).toHaveBeenCalledTimes(1);
-      expect(postMessageSpy.mock.calls[0][0]).toMatchObject({
+      expect(postMessageSpy.mock.calls[0]?.[0]).toMatchObject({
         type: MessageTypes.SURFACE_ADDED,
         payload,
         timestamp: expect.any(Number)
@@ -251,9 +251,9 @@ describe('BroadcastManager', () => {
       manager.broadcast(MessageTypes.MODE_CHANGED, payload);
       const afterTime = Date.now();
 
-      const message = postMessageSpy.mock.calls[0][0];
-      expect(message.timestamp).toBeGreaterThanOrEqual(beforeTime);
-      expect(message.timestamp).toBeLessThanOrEqual(afterTime);
+      const message = postMessageSpy.mock.calls[0]?.[0];
+      expect(message?.timestamp).toBeGreaterThanOrEqual(beforeTime);
+      expect(message?.timestamp).toBeLessThanOrEqual(afterTime);
     });
 
     it('should broadcast different message types correctly', () => {
@@ -265,9 +265,9 @@ describe('BroadcastManager', () => {
       manager.broadcast(MessageTypes.FULLSCREEN_CHANGED, { fullscreen: true });
 
       expect(postMessageSpy).toHaveBeenCalledTimes(3);
-      expect(postMessageSpy.mock.calls[0][0].type).toBe(MessageTypes.SURFACE_UPDATED);
-      expect(postMessageSpy.mock.calls[1][0].type).toBe(MessageTypes.MODE_CHANGED);
-      expect(postMessageSpy.mock.calls[2][0].type).toBe(MessageTypes.FULLSCREEN_CHANGED);
+      expect(postMessageSpy.mock.calls[0]?.[0]?.type).toBe(MessageTypes.SURFACE_UPDATED);
+      expect(postMessageSpy.mock.calls[1]?.[0]?.type).toBe(MessageTypes.MODE_CHANGED);
+      expect(postMessageSpy.mock.calls[2]?.[0]?.type).toBe(MessageTypes.FULLSCREEN_CHANGED);
     });
   });
 

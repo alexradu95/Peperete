@@ -39,10 +39,10 @@ describe('getDefaultCorners', () => {
       const corners = getDefaultCorners();
 
       expect(Object.keys(corners)).toHaveLength(4);
-      expect(corners.point0).toBeDefined();
-      expect(corners.point1).toBeDefined();
-      expect(corners.point2).toBeDefined();
-      expect(corners.point3).toBeDefined();
+      expect(corners['point0']).toBeDefined();
+      expect(corners['point1']).toBeDefined();
+      expect(corners['point2']).toBeDefined();
+      expect(corners['point3']).toBeDefined();
     });
 
     it('should create specified number of corners when valid', () => {
@@ -102,9 +102,12 @@ describe('getDefaultCorners', () => {
       const centerY = 540;
 
       // Check distance from center to first corner
+      const point0 = corners['point0'];
+      expect(point0).toBeDefined();
+
       const distance = Math.sqrt(
-        Math.pow(corners.point0.x - centerX, 2) +
-        Math.pow(corners.point0.y - centerY, 2)
+        Math.pow(point0!.x - centerX, 2) +
+        Math.pow(point0!.y - centerY, 2)
       );
 
       expect(Math.abs(distance - expectedRadius)).toBeLessThan(0.01);
@@ -122,9 +125,10 @@ describe('getDefaultCorners', () => {
       const distances = [];
       for (let i = 0; i < 4; i++) {
         const corner = corners[`point${i}`];
+        expect(corner).toBeDefined();
         const distance = Math.sqrt(
-          Math.pow(corner.x - centerX, 2) +
-          Math.pow(corner.y - centerY, 2)
+          Math.pow(corner!.x - centerX, 2) +
+          Math.pow(corner!.y - centerY, 2)
         );
         distances.push(distance);
       }
@@ -139,9 +143,11 @@ describe('getDefaultCorners', () => {
       for (let i = 0; i < 4; i++) {
         const corner1 = corners[`point${i}`];
         const corner2 = corners[`point${(i + 1) % 4}`];
+        expect(corner1).toBeDefined();
+        expect(corner2).toBeDefined();
 
-        const angle1 = Math.atan2(corner1.y - centerY, corner1.x - centerX);
-        const angle2 = Math.atan2(corner2.y - centerY, corner2.x - centerX);
+        const angle1 = Math.atan2(corner1!.y - centerY, corner1!.x - centerX);
+        const angle2 = Math.atan2(corner2!.y - centerY, corner2!.x - centerX);
 
         let angleDiff = angle2 - angle1;
         // Normalize angle difference to [0, 2π]
@@ -158,10 +164,13 @@ describe('getDefaultCorners', () => {
       const centerY = 540;
       const radius = 270;
 
+      const point0 = corners['point0'];
+      expect(point0).toBeDefined();
+
       // First corner should be at top (angle -π/2)
       // Which means x = centerX, y = centerY - radius
-      expect(Math.abs(corners.point0.x - centerX)).toBeLessThan(0.01);
-      expect(Math.abs(corners.point0.y - (centerY - radius))).toBeLessThan(0.01);
+      expect(Math.abs(point0!.x - centerX)).toBeLessThan(0.01);
+      expect(Math.abs(point0!.y - (centerY - radius))).toBeLessThan(0.01);
     });
   });
 
@@ -180,9 +189,12 @@ describe('getDefaultCorners', () => {
       expect(Math.abs(avgY - 500)).toBeLessThan(0.01);
 
       // Radius should be 250 (25% of 1000)
+      const point0 = corners['point0'];
+      expect(point0).toBeDefined();
+
       const distance = Math.sqrt(
-        Math.pow(corners.point0.x - 500, 2) +
-        Math.pow(corners.point0.y - 500, 2)
+        Math.pow(point0!.x - 500, 2) +
+        Math.pow(point0!.y - 500, 2)
       );
       expect(Math.abs(distance - 250)).toBeLessThan(0.01);
     });
@@ -201,9 +213,12 @@ describe('getDefaultCorners', () => {
       expect(Math.abs(avgY - 600)).toBeLessThan(0.01);
 
       // Radius should be 200 (25% of smaller dimension: 800)
+      const point0Portrait = corners['point0'];
+      expect(point0Portrait).toBeDefined();
+
       const distance = Math.sqrt(
-        Math.pow(corners.point0.x - 400, 2) +
-        Math.pow(corners.point0.y - 600, 2)
+        Math.pow(point0Portrait!.x - 400, 2) +
+        Math.pow(point0Portrait!.y - 600, 2)
       );
       expect(Math.abs(distance - 200)).toBeLessThan(0.01);
     });
@@ -223,9 +238,12 @@ describe('getDefaultCorners', () => {
 
       // Radius based on smaller dimension (1080)
       const expectedRadius = 270;
+      const point0Wide = corners['point0'];
+      expect(point0Wide).toBeDefined();
+
       const distance = Math.sqrt(
-        Math.pow(corners.point0.x - 1920, 2) +
-        Math.pow(corners.point0.y - 540, 2)
+        Math.pow(point0Wide!.x - 1920, 2) +
+        Math.pow(point0Wide!.y - 540, 2)
       );
       expect(Math.abs(distance - expectedRadius)).toBeLessThan(0.01);
     });
