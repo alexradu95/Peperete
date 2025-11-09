@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
 import { DEFAULT_SURFACE_CONFIG, STORAGE_KEYS, getDefaultCorners, GEOMETRY_TYPES } from '../../../shared/utils/constants';
 import { useStorage } from '../../../shared/hooks/useStorage';
+import { SurfaceArraySchema } from '../../../shared/schemas';
 import { broadcastManager, MessageTypes } from '../../../shared/utils/broadcastChannel';
 
 /**
@@ -12,8 +13,12 @@ import { broadcastManager, MessageTypes } from '../../../shared/utils/broadcastC
 const SurfaceContext = createContext(null);
 
 export function SurfaceProvider({ children }) {
-  // Load surfaces from localStorage or start with empty map
-  const [storedSurfaces, setStoredSurfaces] = useStorage(STORAGE_KEYS.SURFACES, []);
+  // Load surfaces from localStorage with schema validation
+  const [storedSurfaces, setStoredSurfaces] = useStorage({
+    key: STORAGE_KEYS.SURFACES,
+    defaultValue: [],
+    schema: SurfaceArraySchema
+  });
 
   // Convert array to Map for efficient lookups
   const [surfaces, setSurfaces] = useState(() => {

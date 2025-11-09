@@ -63,14 +63,32 @@ HTMLCanvasElement.prototype.getContext = vi.fn((contextType) => {
   return null;
 }) as any;
 
-// Mock localStorage
-const localStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
+// Mock localStorage with actual storage
+const createLocalStorageMock = () => {
+  let store: Record<string, string> = {};
+
+  return {
+    getItem: (key: string) => store[key] || null,
+    setItem: (key: string, value: string) => {
+      store[key] = value;
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    clear: () => {
+      store = {};
+    },
+    get length() {
+      return Object.keys(store).length;
+    },
+    key: (index: number) => {
+      const keys = Object.keys(store);
+      return keys[index] || null;
+    }
+  };
 };
-global.localStorage = localStorageMock as any;
+
+global.localStorage = createLocalStorageMock() as any;
 
 // Mock BroadcastChannel
 global.BroadcastChannel = class BroadcastChannel {
