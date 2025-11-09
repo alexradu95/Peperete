@@ -1,13 +1,12 @@
-import { shaderMaterial } from '@react-three/drei';
-import { extend } from '@react-three/fiber';
-import * as THREE from 'three';
+import { createShaderMaterial } from './shaderMaterialFactory';
 
 /**
  * Audio Pulse Shader Material
  * Creates pulsing circular patterns that respond to audio amplitude
  * Different frequency bands create concentric rings
  */
-const AudioPulseShaderMaterial = shaderMaterial(
+const AudioPulseShaderMaterial = createShaderMaterial(
+  'AudioPulseShaderMaterial',
   // Uniforms
   {
     time: 0,
@@ -70,12 +69,5 @@ const AudioPulseShaderMaterial = shaderMaterial(
     }
   `
 );
-
-AudioPulseShaderMaterial.depthTest = false;
-AudioPulseShaderMaterial.depthWrite = false;
-AudioPulseShaderMaterial.side = THREE.DoubleSide;
-
-// Extend R3F with custom material
-extend({ AudioPulseShaderMaterial });
 
 export default AudioPulseShaderMaterial;

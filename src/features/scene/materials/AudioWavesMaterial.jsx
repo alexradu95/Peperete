@@ -1,13 +1,12 @@
-import { shaderMaterial } from '@react-three/drei';
-import { extend } from '@react-three/fiber';
-import * as THREE from 'three';
+import { createShaderMaterial } from './shaderMaterialFactory';
 
 /**
  * Audio Waves Shader Material
  * Creates wave patterns that respond to audio input
  * Waves speed and intensity controlled by audio amplitude
  */
-const AudioWavesShaderMaterial = shaderMaterial(
+const AudioWavesShaderMaterial = createShaderMaterial(
+  'AudioWavesShaderMaterial',
   // Uniforms
   {
     time: 0,
@@ -67,12 +66,5 @@ const AudioWavesShaderMaterial = shaderMaterial(
     }
   `
 );
-
-AudioWavesShaderMaterial.depthTest = false;
-AudioWavesShaderMaterial.depthWrite = false;
-AudioWavesShaderMaterial.side = THREE.DoubleSide;
-
-// Extend R3F with custom material
-extend({ AudioWavesShaderMaterial });
 
 export default AudioWavesShaderMaterial;

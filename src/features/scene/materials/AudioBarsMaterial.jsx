@@ -1,13 +1,12 @@
-import { shaderMaterial } from '@react-three/drei';
-import { extend } from '@react-three/fiber';
-import * as THREE from 'three';
+import { createShaderMaterial } from './shaderMaterialFactory';
 
 /**
  * Audio Bars Shader Material
  * Classic audio visualizer with vertical bars
  * Bars height responds to audio frequencies
  */
-const AudioBarsShaderMaterial = shaderMaterial(
+const AudioBarsShaderMaterial = createShaderMaterial(
+  'AudioBarsShaderMaterial',
   // Uniforms
   {
     time: 0,
@@ -116,12 +115,5 @@ const AudioBarsShaderMaterial = shaderMaterial(
     }
   `
 );
-
-AudioBarsShaderMaterial.depthTest = false;
-AudioBarsShaderMaterial.depthWrite = false;
-AudioBarsShaderMaterial.side = THREE.DoubleSide;
-
-// Extend R3F with custom material
-extend({ AudioBarsShaderMaterial });
 
 export default AudioBarsShaderMaterial;

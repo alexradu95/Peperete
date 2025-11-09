@@ -1,24 +1,13 @@
-import { shaderMaterial } from '@react-three/drei';
-import { extend } from '@react-three/fiber';
-import * as THREE from 'three';
 import { SHADER_DEFINITIONS } from './shaderDefinitions';
+import { createShaderMaterial } from './shaderMaterialFactory';
 
 /**
  * Animated Gradient Shader Material
  * Creates a flowing gradient animation using sine waves
  */
-const shaderDef = SHADER_DEFINITIONS.ANIMATED_GRADIENT;
-const AnimatedGradientShaderMaterial = shaderMaterial(
-  shaderDef.uniforms,
-  shaderDef.vertexShader,
-  shaderDef.fragmentShader
+const AnimatedGradientShaderMaterial = createShaderMaterial(
+  'AnimatedGradientShaderMaterial',
+  SHADER_DEFINITIONS.ANIMATED_GRADIENT
 );
-
-AnimatedGradientShaderMaterial.depthTest = false;
-AnimatedGradientShaderMaterial.depthWrite = false;
-AnimatedGradientShaderMaterial.side = THREE.DoubleSide;
-
-// Extend R3F with custom material
-extend({ AnimatedGradientShaderMaterial });
 
 export default AnimatedGradientShaderMaterial;

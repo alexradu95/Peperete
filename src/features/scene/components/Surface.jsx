@@ -1,25 +1,12 @@
-import React, { useRef, useEffect, useMemo, useState } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import { useFrame, useLoader, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { TransformCalculator } from '../../calibration/utils/TransformCalculator';
 import { useContentManager, getColorValue } from '../hooks/useContentManager';
-import { CONTENT_TYPES, GEOMETRY_SUBDIVISIONS, GEOMETRY_TYPES } from '../../../shared/utils/constants';
+import { GEOMETRY_SUBDIVISIONS, GEOMETRY_TYPES } from '../../../shared/utils/constants';
 import { GeometryGenerator } from '../utils/GeometryGenerator';
 import { useAudio } from '../../../shared/context/AudioContext';
-import AnimatedGradientShaderMaterial from '../materials/AnimatedGradientMaterial';
-import RotatingColorsShaderMaterial from '../materials/RotatingColorsMaterial';
-import PlasmaShaderMaterial from '../materials/PlasmaMaterial';
-import WavesShaderMaterial from '../materials/WavesMaterial';
-import NoiseShaderMaterial from '../materials/NoiseMaterial';
-import FireShaderMaterial from '../materials/FireMaterial';
-import RainbowShaderMaterial from '../materials/RainbowMaterial';
-import KaleidoscopeShaderMaterial from '../materials/KaleidoscopeMaterial';
-import GlitchShaderMaterial from '../materials/GlitchMaterial';
-import SpiralShaderMaterial from '../materials/SpiralMaterial';
-import AudioWavesShaderMaterial from '../materials/AudioWavesMaterial';
-import AudioPulseShaderMaterial from '../materials/AudioPulseMaterial';
-import AudioSpectrumShaderMaterial from '../materials/AudioSpectrumMaterial';
-import AudioBarsShaderMaterial from '../materials/AudioBarsMaterial';
+import { getMaterialConfig } from '../materials/materialConfig';
 import { CustomShaderMaterial } from '../materials/CustomShaderMaterial';
 
 /**
@@ -54,7 +41,12 @@ export function Surface({ surface }) {
     }
   }, [surface.corners, geometry, surface.geometryType, size.width, size.height]);
 
-  // Create material based on content type
+  // Get material configuration from registry
+  const materialConfig = useMemo(() => {
+    return getMaterialConfig(surface.contentType);
+  }, [surface.contentType]);
+
+  // Build material props from configuration
   const materialProps = useMemo(() => {
     const baseProps = {
       side: THREE.DoubleSide,
@@ -62,149 +54,32 @@ export function Surface({ surface }) {
       depthWrite: false
     };
 
-    switch (surface.contentType) {
-      case CONTENT_TYPES.CHECKERBOARD:
-        return {
-          type: 'meshBasicMaterial',
-          props: {
-            ...baseProps,
-            map: createCheckerboardTexture()
-          }
-        };
+    const context = {
+      createCheckerboardTexture,
+      createGridTexture,
+      getColorValue
+    };
 
-      case CONTENT_TYPES.GRID:
-        return {
-          type: 'meshBasicMaterial',
-          props: {
-            ...baseProps,
-            map: createGridTexture()
-          }
-        };
+    // Get custom props from config
+    const customProps = materialConfig.getProps
+      ? materialConfig.getProps(context, surface)
+      : materialConfig.staticProps || {};
 
-      case CONTENT_TYPES.WHITE:
-      case CONTENT_TYPES.RED:
-      case CONTENT_TYPES.GREEN:
-      case CONTENT_TYPES.BLUE:
-        return {
-          type: 'meshBasicMaterial',
-          props: {
-            ...baseProps,
-            color: getColorValue(surface.contentType)
-          }
-        };
-
-      case CONTENT_TYPES.ANIMATED_GRADIENT:
-        return {
-          type: 'animatedGradient',
-          props: baseProps
-        };
-
-      case CONTENT_TYPES.ROTATING_COLORS:
-        return {
-          type: 'rotatingColors',
-          props: baseProps
-        };
-
-      case CONTENT_TYPES.PLASMA:
-        return {
-          type: 'plasma',
-          props: baseProps
-        };
-
-      case CONTENT_TYPES.WAVES:
-        return {
-          type: 'waves',
-          props: baseProps
-        };
-
-      case CONTENT_TYPES.NOISE:
-        return {
-          type: 'noise',
-          props: baseProps
-        };
-
-      case CONTENT_TYPES.FIRE:
-        return {
-          type: 'fire',
-          props: baseProps
-        };
-
-      case CONTENT_TYPES.RAINBOW:
-        return {
-          type: 'rainbow',
-          props: baseProps
-        };
-
-      case CONTENT_TYPES.KALEIDOSCOPE:
-        return {
-          type: 'kaleidoscope',
-          props: baseProps
-        };
-
-      case CONTENT_TYPES.GLITCH:
-        return {
-          type: 'glitch',
-          props: baseProps
-        };
-
-      case CONTENT_TYPES.SPIRAL:
-        return {
-          type: 'spiral',
-          props: baseProps
-        };
-
-      case CONTENT_TYPES.AUDIO_WAVES:
-        return {
-          type: 'audioWaves',
-          props: baseProps
-        };
-
-      case CONTENT_TYPES.AUDIO_PULSE:
-        return {
-          type: 'audioPulse',
-          props: baseProps
-        };
-
-      case CONTENT_TYPES.AUDIO_SPECTRUM:
-        return {
-          type: 'audioSpectrum',
-          props: baseProps
-        };
-
-      case CONTENT_TYPES.AUDIO_BARS:
-        return {
-          type: 'audioBars',
-          props: baseProps
-        };
-
-      case CONTENT_TYPES.CUSTOM_SHADER:
-        return {
-          type: 'customShader',
-          props: {
-            ...baseProps,
-            shaderData: surface.contentData?.shaderData
-          }
-        };
-
-      case CONTENT_TYPES.IMAGE:
-        return {
-          type: 'image',
-          props: {
-            ...baseProps,
-            imageUrl: surface.contentData?.imageUrl
-          }
-        };
-
-      default:
-        return {
-          type: 'meshBasicMaterial',
-          props: {
-            ...baseProps,
-            color: 0xffffff
-          }
-        };
-    }
-  }, [surface.contentType, surface.contentData, createCheckerboardTexture, createGridTexture]);
+    return {
+      type: materialConfig.type,
+      requiresRef: materialConfig.requiresRef,
+      props: {
+        ...baseProps,
+        ...customProps
+      }
+    };
+  }, [
+    surface.contentType,
+    surface.contentData,
+    materialConfig,
+    createCheckerboardTexture,
+    createGridTexture
+  ]);
 
   // Animation loop for shader materials
   useFrame((state, delta) => {
@@ -233,44 +108,52 @@ export function Surface({ surface }) {
       geometry={geometry}
       renderOrder={surface.renderOrder || 0}
     >
-      {materialProps.type === 'animatedGradient' && (
-        <animatedGradientShaderMaterial ref={materialRef} {...materialProps.props} />
-      )}
-      {materialProps.type === 'rotatingColors' && (
-        <rotatingColorsShaderMaterial ref={materialRef} {...materialProps.props} />
-      )}
-      {materialProps.type === 'plasma' && (
-        <plasmaShaderMaterial ref={materialRef} {...materialProps.props} />
-      )}
-      {materialProps.type === 'waves' && (
-        <wavesShaderMaterial ref={materialRef} {...materialProps.props} />
-      )}
-      {materialProps.type === 'noise' && (
-        <noiseShaderMaterial ref={materialRef} {...materialProps.props} />
-      )}
-      {materialProps.type === 'fire' && (
-        <fireShaderMaterial ref={materialRef} {...materialProps.props} />
-      )}
-      {materialProps.type === 'rainbow' && (
-        <rainbowShaderMaterial ref={materialRef} {...materialProps.props} />
-      )}
-      {materialProps.type === 'kaleidoscope' && (
-        <kaleidoscopeShaderMaterial ref={materialRef} {...materialProps.props} />
-      )}
-      {materialProps.type === 'glitch' && (
-        <glitchShaderMaterial ref={materialRef} {...materialProps.props} />
-      )}
-      {materialProps.type === 'spiral' && (
-        <spiralShaderMaterial ref={materialRef} {...materialProps.props} />
-      )}
-      {materialProps.type === 'meshBasicMaterial' && (
-        <meshBasicMaterial {...materialProps.props} />
-      )}
-      {materialProps.type === 'image' && materialProps.props.imageUrl && (
-        <ImageMaterial url={materialProps.props.imageUrl} {...materialProps.props} />
-      )}
+      <MaterialRenderer
+        type={materialProps.type}
+        props={materialProps.props}
+        materialRef={materialProps.requiresRef ? materialRef : undefined}
+      />
     </mesh>
   );
+}
+
+/**
+ * Material Renderer Component
+ * Dynamically renders the appropriate material based on type
+ *
+ * This eliminates the need for 15+ conditional renders in the Surface component
+ */
+function MaterialRenderer({ type, props, materialRef }) {
+  // Handle special material types
+  if (type === 'image' && props.imageUrl) {
+    return <ImageMaterial url={props.imageUrl} {...props} />;
+  }
+
+  if (type === 'customShader') {
+    return (
+      <CustomShaderMaterial
+        vertexShader={props.shaderData?.vertexShader}
+        fragmentShader={props.shaderData?.fragmentShader}
+        uniforms={props.shaderData?.uniforms}
+        {...props}
+      />
+    );
+  }
+
+  // Handle standard Three.js materials
+  if (type === 'meshBasicMaterial') {
+    return <meshBasicMaterial {...props} />;
+  }
+
+  // Handle custom shader materials
+  // React Three Fiber allows us to use custom materials as JSX elements
+  // by using lowercase element names that match the extended material names
+  const MaterialComponent = type + 'ShaderMaterial';
+
+  return React.createElement(MaterialComponent, {
+    ref: materialRef,
+    ...props
+  });
 }
 
 /**
