@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { APP_MODES } from '../utils/constants';
-import { broadcastManager, MessageTypes } from '../utils/broadcastChannel';
+import { broadcastManager, MessageTypes } from '../utils/broadcast-channel';
 
 /**
  * Global application state context

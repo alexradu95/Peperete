@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useCallback, useRef, useEff
 import { DEFAULT_SURFACE_CONFIG, STORAGE_KEYS, getDefaultCorners, GEOMETRY_TYPES } from '../../../shared/utils/constants';
 import { useStorage } from '../../../shared/hooks/useStorage';
 import { SurfaceArraySchema } from '../../../shared/schemas';
-import { broadcastManager, MessageTypes } from '../../../shared/utils/broadcastChannel';
+import { broadcastManager, MessageTypes } from '../../../shared/utils/broadcast-channel';
 
 /**
  * Surface Manager Context
