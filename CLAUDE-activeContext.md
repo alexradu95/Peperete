@@ -37,6 +37,20 @@
 - ✅ Updated SurfaceContext to use new schema-validated useStorage API
 - ✅ Exported schemas from shared/index.js for easy access
 
+### Progress - Phase 3 COMPLETED ✅
+- ✅ Wrote 17 behavior tests for getDefaultCorners utility
+  - Corner count behavior (default, clamping, validation)
+  - Corner positioning (centering, radius calculation, distribution)
+  - Different viewport dimensions (square, portrait, ultra-wide)
+  - Corner structure validation
+- ✅ Wrote 19 behavior tests for BroadcastManager utility
+  - Subscription/unsubscription mechanics
+  - Message handling and routing
+  - Broadcasting with timestamps
+  - Multiple subscribers support
+  - Cleanup behavior
+- ✅ All 54 tests passing (7 + 11 + 17 + 19)
+
 ## Project Overview
 
 ### What This Project Is
