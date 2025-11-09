@@ -1,23 +1,33 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import type { AppMode } from '../schemas';
 import { APP_MODES } from '../utils/constants';
 import { broadcastManager, MessageTypes } from '../utils/broadcast-channel';
 
-/**
- * Global application state context
- * Manages app mode (calibration/playback) and fullscreen state
- * Syncs across tabs via BroadcastChannel
- */
+export type AppContextValue = {
+  mode: AppMode;
+  setMode: (mode: AppMode | ((prevMode: AppMode) => AppMode)) => void;
+  toggleMode: () => void;
+  isFullscreen: boolean;
+  toggleFullscreen: () => void;
+  notification: string | null;
+  showNotification: (message: string, duration?: number) => void;
+  isSidebarVisible: boolean;
+  toggleSidebar: () => void;
+};
 
-const AppContext = createContext(null);
+type AppProviderProps = {
+  children: React.ReactNode;
+};
 
-export function AppProvider({ children }) {
-  const [mode, setModeInternal] = useState(APP_MODES.CALIBRATION);
+const AppContext = createContext<AppContextValue | null>(null);
+
+export const AppProvider = ({ children }: AppProviderProps) => {
+  const [mode, setModeInternal] = useState<AppMode>(APP_MODES.CALIBRATION);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [notification, setNotification] = useState(null);
+  const [notification, setNotification] = useState<string | null>(null);
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
 
-  // Wrapper to broadcast mode changes
-  const setMode = useCallback((newMode) => {
+  const setMode = useCallback((newMode: AppMode | ((prevMode: AppMode) => AppMode)) => {
     const resolvedMode = typeof newMode === 'function' ? newMode(mode) : newMode;
     setModeInternal(resolvedMode);
     broadcastManager.broadcast(MessageTypes.MODE_CHANGED, { mode: resolvedMode });
@@ -39,7 +49,7 @@ export function AppProvider({ children }) {
     }
   }, []);
 
-  const showNotification = useCallback((message, duration = 3000) => {
+  const showNotification = useCallback((message: string, duration: number = 3000) => {
     setNotification(message);
     setTimeout(() => setNotification(null), duration);
   }, []);
@@ -48,12 +58,12 @@ export function AppProvider({ children }) {
     setIsSidebarVisible(prev => !prev);
   }, []);
 
-  // Listen for broadcasts from other tabs
   useEffect(() => {
     const unsubscribeMode = broadcastManager.subscribe(
       MessageTypes.MODE_CHANGED,
-      ({ mode: newMode }) => {
-        setModeInternal(newMode);
+      (payload: unknown) => {
+        const data = payload as { mode: AppMode };
+        setModeInternal(data.mode);
       }
     );
 
@@ -62,7 +72,7 @@ export function AppProvider({ children }) {
     };
   }, []);
 
-  const value = {
+  const value: AppContextValue = {
     mode,
     setMode,
     toggleMode,
@@ -75,12 +85,12 @@ export function AppProvider({ children }) {
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
-}
+};
 
-export function useApp() {
+export const useApp = (): AppContextValue => {
   const context = useContext(AppContext);
   if (!context) {
     throw new Error('useApp must be used within AppProvider');
   }
   return context;
-}
+};
