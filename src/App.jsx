@@ -4,7 +4,7 @@ import { AppProvider } from './shared/context/AppContext';
 import { AudioProvider } from './shared/context/AudioContext';
 import { SurfaceProvider } from './features/surface-manager';
 import { LiveView, EditView } from './views';
-import './App.css';
+import './index.css';
 
 /**
  * Main Application Component

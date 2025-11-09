@@ -7,7 +7,6 @@ import { useApp } from '../shared/context/AppContext';
 import { useSurfaces } from '../features/surface-manager';
 import { useKeyboard } from '../shared/hooks/useKeyboard';
 import { KEYBOARD_SHORTCUTS } from '../shared/utils/constants';
-import './EditView.css';
 
 /**
  * Edit View Component
@@ -26,9 +25,9 @@ export function EditView() {
   });
 
   return (
-    <div className="edit-view">
+    <div className="w-screen h-screen overflow-hidden bg-black relative">
       {/* 3D Scene Preview */}
-      <div className="canvas-container">
+      <div className="w-full h-full">
         <Scene />
       </div>
 

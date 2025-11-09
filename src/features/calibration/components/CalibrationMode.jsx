@@ -15,7 +15,6 @@ import {
   isPointInsideSurface,
 } from '../utils/SurfaceTransformations';
 import GUI from 'lil-gui';
-import './CalibrationMode.css';
 
 /**
  * Calibration Mode Component
@@ -239,10 +238,10 @@ export function CalibrationMode() {
   // Show message if no surface is selected
   if (!surface) {
     return (
-      <div className="calibration-overlay">
-        <div className="calibration-message">
-          <h2>No Surface Selected</h2>
-          <p>Select a surface from the left panel to begin calibration</p>
+      <div className="fixed top-0 left-[300px] right-0 bottom-0 pointer-events-none z-[500]">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/90 py-10 px-10 rounded-lg text-center text-white border border-white/20 pointer-events-auto">
+          <h2 className="m-0 mb-4 text-2xl">No Surface Selected</h2>
+          <p className="m-0 text-white/70 text-sm">Select a surface from the left panel to begin calibration</p>
         </div>
       </div>
     );
@@ -255,7 +254,7 @@ export function CalibrationMode() {
   const surfaceCenter = surface ? calculateSurfaceCenter(surface.corners) : null;
 
   return (
-    <div className="calibration-overlay">
+    <div className="fixed top-0 left-[300px] right-0 bottom-0 pointer-events-none z-[500] [&>*]:pointer-events-auto">
       {/* Transformation Mode Selector */}
       <TransformModeSelector mode={transformMode} onModeChange={setTransformMode} />
 
@@ -278,13 +277,8 @@ export function CalibrationMode() {
       {transformMode !== TRANSFORM_MODES.CORNERS && (
         <div
           {...bindSurfaceDrag()}
-          className={`surface-transform-area ${transformMode}`}
+          className={`absolute inset-0 z-[900] ${transformMode === 'move' ? 'bg-[rgba(74,144,226,0.05)]' : transformMode === 'rotate' ? 'bg-[rgba(255,165,0,0.05)]' : 'bg-[rgba(138,43,226,0.05)]'}`}
           style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
             cursor:
               transformMode === TRANSFORM_MODES.MOVE
                 ? 'move'
@@ -318,24 +312,24 @@ export function CalibrationMode() {
       )}
 
       {/* lil-gui container */}
-      <div ref={guiContainerRef} className="calibration-gui" />
+      <div ref={guiContainerRef} className="absolute top-5 right-5" />
 
       {/* Calibration Instructions */}
-      <div className="calibration-instructions">
-        <h3>Calibration Mode</h3>
+      <div className="absolute top-5 left-1/2 -translate-x-1/2 bg-black/80 py-4 px-6 rounded-md border border-orange-500/50 text-white text-center max-w-[500px]">
+        <h3 className="m-0 mb-2.5 text-base text-[#ffaa00]">Calibration Mode</h3>
         {transformMode === TRANSFORM_MODES.CORNERS && (
-          <p>Drag the corner points to align the surface with your projection area</p>
+          <p className="my-1.5 text-[13px] text-white/80">Drag the corner points to align the surface with your projection area</p>
         )}
         {transformMode === TRANSFORM_MODES.MOVE && (
-          <p>Click and drag anywhere to move the entire surface</p>
+          <p className="my-1.5 text-[13px] text-white/80">Click and drag anywhere to move the entire surface</p>
         )}
         {transformMode === TRANSFORM_MODES.ROTATE && (
-          <p>Click and drag to rotate the surface around its center</p>
+          <p className="my-1.5 text-[13px] text-white/80">Click and drag to rotate the surface around its center</p>
         )}
         {transformMode === TRANSFORM_MODES.SCALE && (
-          <p>Drag away from or toward the center to scale the surface</p>
+          <p className="my-1.5 text-[13px] text-white/80">Drag away from or toward the center to scale the surface</p>
         )}
-        <p className="hint">Press <kbd>Space</kbd> to switch to Playback mode</p>
+        <p className="mt-2.5 text-xs text-white/60">Press <kbd>Space</kbd> to switch to Playback mode</p>
       </div>
     </div>
   );

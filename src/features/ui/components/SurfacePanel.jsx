@@ -6,7 +6,6 @@ import { CONTENT_TYPES, APP_MODES } from '../../../shared/utils/constants';
 import { GeometryTypeModal } from './GeometryTypeModal';
 import { ShaderEditorPanel } from './ShaderEditorPanel';
 import { getTemplate } from '../../scene/materials/shaderTemplates';
-import './SurfacePanel.css';
 
 /**
  * Surface Panel Component
@@ -134,86 +133,86 @@ export function SurfacePanel() {
           onClose={handleShaderEditorClose}
         />
       )}
-      <div className={`surface-panel ${!isSidebarVisible ? 'hidden' : ''}`}>
-        <div className="surface-panel-header">
-          <h2>Surfaces</h2>
-          <div className="header-buttons">
+      <div className={`fixed left-0 top-0 w-[300px] h-screen bg-[rgba(20,20,20,0.95)] text-white flex flex-col z-[1000] border-r border-white/10 transition-transform duration-300 ease-in-out ${!isSidebarVisible ? '-translate-x-full' : ''}`}>
+        <div className="p-5 border-b border-white/10">
+          <h2 className="m-0 mb-4 text-lg font-semibold">Surfaces</h2>
+          <div className="flex flex-col gap-2">
             <button
-              className={`btn-audio ${isAudioEnabled ? 'active' : ''}`}
+              className={`w-full px-2.5 py-2.5 ${isAudioEnabled ? 'bg-red-500 hover:bg-red-600 animate-pulse' : 'bg-gray-600 hover:bg-gray-500'} text-white border-none rounded cursor-pointer text-sm font-medium transition-colors`}
               onClick={toggleAudio}
               title={isAudioEnabled ? 'Disable microphone' : 'Enable microphone'}
             >
               {isAudioEnabled ? '🎤 Audio ON' : '🎤 Audio OFF'}
             </button>
-            <button className="btn-launch-live" onClick={handleLaunchLiveView} title="Open live view in new window">
+            <button className="w-full px-2.5 py-2.5 bg-green-600 hover:bg-green-700 text-white border-none rounded cursor-pointer text-sm font-medium transition-colors" onClick={handleLaunchLiveView} title="Open live view in new window">
               Launch Live View
             </button>
-            <button className="btn-add" onClick={handleAddSurface}>
+            <button className="w-full px-2.5 py-2.5 bg-[#00aaff] hover:bg-[#0088cc] text-white border-none rounded cursor-pointer text-sm font-medium transition-colors" onClick={handleAddSurface}>
               + Add Surface
             </button>
           </div>
         </div>
 
         {isAudioEnabled && (
-          <div className="audio-status">
-            <div className="audio-meter">
-              <div className="meter-label">Bass</div>
-              <div className="meter-bar">
-                <div className="meter-fill" style={{ width: `${audioData.bass * 100}%` }} />
+          <div className="py-4 px-5 bg-black/30 border-b border-white/10">
+            <div className="mb-2.5 last:mb-0">
+              <div className="text-[11px] text-white/70 mb-1 font-medium">Bass</div>
+              <div className="h-2 bg-white/10 rounded overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-[#00aaff] to-[#00ff88] transition-[width] duration-100 ease-out rounded" style={{ width: `${audioData.bass * 100}%` }} />
               </div>
             </div>
-            <div className="audio-meter">
-              <div className="meter-label">Mid</div>
-              <div className="meter-bar">
-                <div className="meter-fill" style={{ width: `${audioData.mid * 100}%` }} />
+            <div className="mb-2.5 last:mb-0">
+              <div className="text-[11px] text-white/70 mb-1 font-medium">Mid</div>
+              <div className="h-2 bg-white/10 rounded overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-[#00aaff] to-[#00ff88] transition-[width] duration-100 ease-out rounded" style={{ width: `${audioData.mid * 100}%` }} />
               </div>
             </div>
-            <div className="audio-meter">
-              <div className="meter-label">Treble</div>
-              <div className="meter-bar">
-                <div className="meter-fill" style={{ width: `${audioData.treble * 100}%` }} />
+            <div className="mb-2.5 last:mb-0">
+              <div className="text-[11px] text-white/70 mb-1 font-medium">Treble</div>
+              <div className="h-2 bg-white/10 rounded overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-[#00aaff] to-[#00ff88] transition-[width] duration-100 ease-out rounded" style={{ width: `${audioData.treble * 100}%` }} />
               </div>
             </div>
           </div>
         )}
 
         {error && (
-          <div className="audio-error">
+          <div className="py-2.5 px-5 bg-red-500/20 border-b border-red-500/30 text-red-200 text-xs">
             Error: {error}
           </div>
         )}
 
-      <div className="surface-list">
+      <div className="flex-1 overflow-y-auto p-2.5 custom-scrollbar">
         {surfaces.length === 0 ? (
-          <div className="empty-state">
-            <p>No surfaces yet</p>
-            <p className="help-text">Click "Add Surface" to create one</p>
+          <div className="py-10 px-5 text-center text-white/50">
+            <p className="my-2.5">No surfaces yet</p>
+            <p className="text-xs my-2.5">Click "Add Surface" to create one</p>
           </div>
         ) : (
           surfaces.map(surface => (
             <div
               key={surface.id}
-              className={`surface-item ${selectedSurfaceId === surface.id ? 'selected' : ''} ${!surface.visible ? 'hidden' : ''}`}
+              className={`bg-white/5 border border-white/10 rounded mb-2 p-3 cursor-pointer transition-all ${selectedSurfaceId === surface.id ? 'bg-[rgba(0,170,255,0.1)] border-[#00aaff]' : 'hover:bg-white/8 hover:border-white/20'} ${!surface.visible ? 'opacity-50' : ''}`}
               onClick={() => handleSelectSurface(surface.id)}
             >
-              <div className="surface-item-header">
+              <div className="flex justify-between items-center gap-2.5">
                 <input
                   type="text"
-                  className="surface-name"
+                  className="flex-1 bg-transparent border border-transparent text-white px-2 py-1 text-sm rounded hover:border-white/20 focus:outline-none focus:border-[#00aaff] focus:bg-black/30"
                   value={surface.name}
                   onChange={(e) => handleNameChange(surface.id, e.target.value)}
                   onClick={(e) => e.stopPropagation()}
                 />
-                <div className="surface-controls">
+                <div className="flex gap-1.5">
                   <button
-                    className={`btn-visibility ${surface.visible ? 'visible' : 'hidden'}`}
+                    className="bg-transparent border-none text-white cursor-pointer px-2 py-1 rounded text-base transition-colors hover:bg-white/10"
                     onClick={(e) => handleToggleVisibility(surface.id, e)}
                     title={surface.visible ? 'Hide' : 'Show'}
                   >
                     {surface.visible ? '👁' : '👁‍🗨'}
                   </button>
                   <button
-                    className="btn-delete"
+                    className="bg-transparent border-none text-white cursor-pointer px-2 py-1 rounded text-xl leading-none transition-colors hover:bg-red-500/20 hover:text-red-400"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleRemoveSurface(surface.id);
@@ -226,10 +225,11 @@ export function SurfacePanel() {
               </div>
 
               {selectedSurfaceId === surface.id && (
-                <div className="surface-details">
-                  <div className="form-group">
-                    <label>Content Type</label>
+                <div className="mt-3 pt-3 border-t border-white/10">
+                  <div className="mb-4">
+                    <label className="block text-xs text-white/70 mb-1.5 font-medium">Content Type</label>
                     <select
+                      className="w-full px-2 py-2 bg-black/30 border border-white/20 rounded text-white text-[13px] focus:outline-none focus:border-[#00aaff]"
                       value={surface.contentType}
                       onChange={(e) => handleContentTypeChange(surface.id, e.target.value)}
                     >
@@ -262,9 +262,9 @@ export function SurfacePanel() {
                   </div>
 
                   {surface.contentType === CONTENT_TYPES.CUSTOM_SHADER && (
-                    <div className="form-group">
+                    <div className="mb-4">
                       <button
-                        className="btn-shader-editor"
+                        className="w-full px-2.5 py-2.5 bg-purple-700 hover:bg-purple-800 text-white border-none rounded cursor-pointer text-sm font-medium transition-colors"
                         onClick={() => handleOpenShaderEditor(surface.id)}
                       >
                         ✏️ Edit Shader
@@ -273,9 +273,10 @@ export function SurfacePanel() {
                   )}
 
                   {surface.contentType === CONTENT_TYPES.IMAGE && (
-                    <div className="form-group">
-                      <label>Upload Image</label>
+                    <div className="mb-4">
+                      <label className="block text-xs text-white/70 mb-1.5 font-medium">Upload Image</label>
                       <input
+                        className="w-full px-1.5 py-1.5 bg-black/30 border border-white/20 rounded text-white text-xs"
                         type="file"
                         accept="image/*"
                         onChange={(e) => handleImageUpload(surface.id, e)}
@@ -283,16 +284,17 @@ export function SurfacePanel() {
                     </div>
                   )}
 
-                  <div className="form-group">
-                    <label>Render Order (Z-Index)</label>
+                  <div className="mb-4">
+                    <label className="block text-xs text-white/70 mb-1.5 font-medium">Render Order (Z-Index)</label>
                     <input
+                      className="w-full px-2 py-2 bg-black/30 border border-white/20 rounded text-white text-[13px] focus:outline-none focus:border-[#00aaff]"
                       type="number"
                       value={surface.renderOrder || 0}
                       onChange={(e) => handleRenderOrderChange(surface.id, e.target.value)}
                       min="0"
                       max="100"
                     />
-                    <small>Higher values render on top</small>
+                    <small className="block mt-1.5 text-[11px] text-white/50">Higher values render on top</small>
                   </div>
                 </div>
               )}
@@ -301,8 +303,8 @@ export function SurfacePanel() {
         )}
       </div>
 
-        <div className="surface-panel-footer">
-          <div className="surface-count">
+        <div className="py-4 px-5 border-t border-white/10 text-xs text-white/60">
+          <div className="text-center">
             {surfaces.length} surface{surfaces.length !== 1 ? 's' : ''}
           </div>
         </div>

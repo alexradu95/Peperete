@@ -1,7 +1,6 @@
 import React from 'react';
 import { Scene } from '../features/scene';
 import { Notification } from '../features/ui';
-import './LiveView.css';
 
 /**
  * Live View Component
@@ -10,8 +9,8 @@ import './LiveView.css';
  */
 export function LiveView() {
   return (
-    <div className="live-view">
-      <div className="canvas-container">
+    <div className="w-screen h-screen overflow-hidden bg-black relative">
+      <div className="w-full h-full">
         <Scene />
       </div>
       <Notification />
